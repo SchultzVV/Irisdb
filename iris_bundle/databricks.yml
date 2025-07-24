@@ -1,0 +1,18 @@
+bundle:
+  name: iris_bundle
+  run_as:
+    user_name: "{{env.DATABRICKS_USER}}"
+
+include:
+  - notebooks/*
+  - resources/jobs/*
+  - resources/pipelines/*
+  - tests/*
+  - setup.py
+  - requirements.txt
+
+targets:
+  dev:
+    workspace:
+      host: https://your-workspace-url
+    mode: development

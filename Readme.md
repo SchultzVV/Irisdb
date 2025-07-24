@@ -20,4 +20,7 @@ iris_bundle/
 │   │   └── lakehouse_pipeline.yml
 └── .github/workflows/
     └── ci.yml                    <- Workflow GitHub Actions para deploy + validação
+    └── cd.yml                    <- documentação a ser criada
+
 ```
+

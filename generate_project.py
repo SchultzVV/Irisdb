@@ -86,7 +86,7 @@ targets:
 }
 
 # Função para criar estrutura de pastas e arquivos
-def create_structure(base_path="iris_bundle"):
+def create_structure(base_path="/dbfs/tmp/iris_bundle"):
     for folder, files in project_structure.items():
         folder_path = os.path.join(base_path, folder)
         os.makedirs(folder_path, exist_ok=True)

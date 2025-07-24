@@ -1,0 +1,17 @@
+resources:
+  pipelines:
+    iris_pipeline:
+      name: iris-lakehouse-pipeline
+      target: telecom_lakehouse_pipeline_db  # substitua se necessário
+      libraries:
+        - notebook: infra/setup_catalog_volume.py
+        - notebook: notebooks/01_ingest_bronze.py
+        - notebook: notebooks/02_transform_silver.py
+        - notebook: notebooks/03_aggregate_gold.py
+        - notebook: notebooks/04_train_model.py
+      configuration:
+        source: dbfs:/tmp/iris/iris.csv
+        output_bronze_table: telecom_lakehouse.bronze.iris_raw
+        output_silver_table: telecom_lakehouse.silver.iris_clean
+        output_gold_table: telecom_lakehouse.gold.iris_aggregated
+        output_model: telecom_lakehouse.ml.iris_model
