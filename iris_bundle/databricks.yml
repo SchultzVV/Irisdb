@@ -10,13 +10,13 @@ variables:
     default: "dbfs:/tmp/iris/iris.csv"
   output_bronze_table:
     description: "Tabela de destino da camada Bronze"
-    default: "telecom_lakehouse.ml_assets.iris_bronze"
+    default: "default.iris_bronze"
   output_silver_table:
     description: "Tabela de destino da camada Silver"
-    default: "telecom_lakehouse.ml_assets.iris_silver"
+    default: "default.iris_silver"
   output_gold_table:
     description: "Tabela de destino da camada Gold"
-    default: "telecom_lakehouse.ml_assets.iris_gold"
+    default: "default.iris_gold"
   output_model:
     description: "Nome do modelo MLflow"
     default: "telecom_lakehouse.ml_assets.iris_model"
@@ -24,13 +24,12 @@ variables:
 sync:
   include:
     - notebooks/*
-    - resources/jobs/*
-    - resources/pipelines/*
     - setup.py
     - requirements.txt
     - tests/*
 
-include: []
+include:
+  - resources/jobs/*.yml
 
 targets:
   dev:

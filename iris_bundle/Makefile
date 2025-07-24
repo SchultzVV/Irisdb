@@ -57,6 +57,45 @@ test-pipeline:
 	@set -a && . ./.env && set +a && \
 	$(DATABRICKS_BIN) bundle run test_pipeline --target dev
 
+run_bronze:
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run bronze_job --target dev
+
+run_silver:
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run silver_job --target dev
+
+run_gold:
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run gold_job --target dev 
+
+training_job:
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run training_job --target dev
+
+# 🔄 Workflow completo com dependências (Bronze → Silver → Gold → Training)
+run_workflow:
+	@echo "🚀 Executando workflow completo: Bronze → Silver → Gold → Training..."
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run iris_workflow --target dev
+
+# 🔗 Execução sequencial dos jobs individuais
+run_pipeline_sequence:
+	@echo "🔗 Executando pipeline em sequência..."
+	@echo "1️⃣ Executando Bronze Job..."
+	@$(MAKE) run_bronze
+	@echo "2️⃣ Executando Silver Job..."
+	@$(MAKE) run_silver
+	@echo "3️⃣ Executando Gold Job..."
+	@$(MAKE) run_gold
+	@echo "4️⃣ Executando Training Job..."
+	@$(MAKE) training_job
+	@echo "✅ Pipeline completo executado com sucesso!"
+
+
+list_tables:
+	databricks workspace list /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks
+
 # =====================================
 # 🧹 Limpeza e debug
 # =====================================

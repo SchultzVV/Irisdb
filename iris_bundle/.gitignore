@@ -1,1 +1,116 @@
+# =====================================
+# 🔑 Arquivos Sensíveis e Credenciais
+# =====================================
 .env
+.databricks/
+*.token
+credentials/
+secrets/
+
+# =====================================
+# 🐍 Python
+# =====================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# =====================================
+# 🧪 Testing e Coverage
+# =====================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# =====================================
+# 📊 Jupyter Notebooks
+# =====================================
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# =====================================
+# 🔧 IDEs e Editores
+# =====================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =====================================
+# 📦 Dependency Management
+# =====================================
+.venv/
+venv/
+ENV/
+env/
+.env/
+
+# =====================================
+# 🏗️ Build e Deploy
+# =====================================
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# =====================================
+# 📝 Logs e Temporários
+# =====================================
+*.log
+logs/
+tmp/
+temp/
+.tmp/
+
+# =====================================
+# 🖥️ Sistema Operacional
+# =====================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =====================================
+# 📊 Databricks Específicos
+# =====================================
+.databricks-connect.json
+*.bundle
+.bundle/
+
+# =====================================
+# 🧹 Outros
+# =====================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/

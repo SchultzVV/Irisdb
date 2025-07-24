@@ -6,8 +6,10 @@ resources:
         - task_key: aggregate_gold
           description: "Agrega os dados por espécie e grava na camada Gold"
           notebook_task:
-            notebook_path: notebooks/03_aggregate_gold.py
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/03_aggregate_gold
             base_parameters:
               input_silver_table: ${var.output_silver_table}
               output_gold_table: ${var.output_gold_table}
-          existing_cluster_id: ${var.cluster_id}
+          compute:
+            - spec:
+                kind: serverless

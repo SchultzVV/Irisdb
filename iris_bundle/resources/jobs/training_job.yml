@@ -4,12 +4,12 @@ resources:
       name: iris_model_training
       tasks:
         - task_key: train_model
-          depends_on:
-            - task_key: transform_silver  # tarefa do silver_job
           description: "Treina o modelo com MLflow e registra no UC"
           notebook_task:
-            notebook_path: notebooks/04_train_model.py
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/04_train_model
             base_parameters:
               input_gold_table: ${var.output_gold_table}
               output_model: ${var.output_model}
-          existing_cluster_id: ${var.cluster_id}
+          compute:
+            - spec:
+                kind: serverless

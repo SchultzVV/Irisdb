@@ -6,8 +6,10 @@ resources:
         - task_key: transform_silver
           description: "Limpa e transforma os dados da camada Bronze para Silver"
           notebook_task:
-            notebook_path: notebooks/02_transform_silver.py
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/02_transform_silver
             base_parameters:
               input_bronze_table: ${var.output_bronze_table}
               output_silver_table: ${var.output_silver_table}
-          existing_cluster_id: ${var.cluster_id}
+          compute:
+            - spec:
+                kind: serverless

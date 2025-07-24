@@ -3,6 +3,8 @@ resources:
     iris_pipeline:
       name: iris-lakehouse-pipeline
       target: iris_pipeline_db
+      serverless: true
+      catalog: hive_metastore
 
       configuration:
         source: dbfs:/tmp/iris/iris.csv
@@ -13,12 +15,12 @@ resources:
 
       libraries:
         - notebook:
-            path: notebooks/01_ingest_bronze.py
+            path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/01_ingest_bronze
         - notebook:
-            path: notebooks/02_transform_silver.py
+            path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/02_transform_silver
         - notebook:
-            path: notebooks/03_aggregate_gold.py
+            path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/03_aggregate_gold
         - notebook:
-            path: notebooks/04_train_model.py
+            path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/04_train_model
         - notebook:
-            path: notebooks/05_batch_inference.py
+            path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/05_batch_inference

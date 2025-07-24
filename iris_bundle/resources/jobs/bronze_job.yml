@@ -6,8 +6,10 @@ resources:
         - task_key: ingest_bronze
           description: "Ingesta os dados brutos no Delta Lake (camada Bronze)"
           notebook_task:
-            notebook_path: notebooks/01_ingest_bronze.py
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/01_ingest_bronze
             base_parameters:
               source: ${var.source}
               output_bronze_table: ${var.output_bronze_table}
-          existing_cluster_id: ${var.cluster_id}
+          compute:
+            - spec:
+                kind: serverless
