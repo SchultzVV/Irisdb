@@ -10,6 +10,6 @@ resources:
           notebook_task:
             notebook_path: notebooks/04_train_model.py
             base_parameters:
-              input_gold_table: ${bundle.configuration.output_gold_table}
-              output_model: ${bundle.configuration.output_model}
-          existing_cluster_id: ${bundle.configuration.cluster_id}
+              input_gold_table: ${var.output_gold_table}
+              output_model: ${var.output_model}
+          existing_cluster_id: ${var.cluster_id}

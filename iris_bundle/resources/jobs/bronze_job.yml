@@ -8,6 +8,6 @@ resources:
           notebook_task:
             notebook_path: notebooks/01_ingest_bronze.py
             base_parameters:
-              source: ${bundle.configuration.source}
-              output_bronze_table: ${bundle.configuration.output_bronze_table}
-          existing_cluster_id: ${bundle.configuration.cluster_id}
+              source: ${var.source}
+              output_bronze_table: ${var.output_bronze_table}
+          existing_cluster_id: ${var.cluster_id}

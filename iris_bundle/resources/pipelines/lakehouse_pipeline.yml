@@ -1,14 +1,5 @@
 resources:
   pipelines:
-    test_pipeline:
-      name: test-pipeline
-      target: dev
-      libraries:
-        - notebook: notebooks/test_data_ingestion.py
-      configuration:
-        source: dbfs:/tmp/mock/iris.csv
-        output_bronze_table: telecom_lakehouse.ml_assets.mock_bronze
-        
     iris_pipeline:
       name: iris-lakehouse-pipeline
       target: iris_pipeline_db
@@ -21,72 +12,13 @@ resources:
         output_model: telecom_lakehouse.ml_assets.iris_model
 
       libraries:
-        - notebook: notebooks/01_ingest_bronze.py
-        - notebook: notebooks/02_transform_silver.py
-        - notebook: notebooks/03_aggregate_gold.py
-        - notebook: notebooks/04_train_model.py
-        - notebook: notebooks/05_batch_inference.py
-
-      tasks:
-        - task_key: ingest_bronze
-          description: "Lê CSV e grava como Delta na camada Bronze"
-          notebook_path: notebooks/01_ingest_bronze.py
-          base_parameters:
-            source: ${bundle.configuration.source}
-            output_bronze_table: ${bundle.configuration.output_bronze_table}
-          new_cluster:
-            spark_version: 13.3.x-scala2.12
-            node_type_id: Standard_DS3_v2
-            num_workers: 2
-
-        - task_key: transform_silver
-          depends_on:
-            - task_key: ingest_bronze
-          description: "Limpa e padroniza os dados (Silver)"
-          notebook_path: notebooks/02_transform_silver.py
-          base_parameters:
-            input_bronze_table: ${bundle.configuration.output_bronze_table}
-            output_silver_table: ${bundle.configuration.output_silver_table}
-          new_cluster:
-            spark_version: 13.3.x-scala2.12
-            node_type_id: Standard_DS3_v2
-            num_workers: 2
-
-        - task_key: aggregate_gold
-          depends_on:
-            - task_key: transform_silver
-          description: "Agrega por espécie (Gold)"
-          notebook_path: notebooks/03_aggregate_gold.py
-          base_parameters:
-            input_silver_table: ${bundle.configuration.output_silver_table}
-            output_gold_table: ${bundle.configuration.output_gold_table}
-          new_cluster:
-            spark_version: 13.3.x-scala2.12
-            node_type_id: Standard_DS3_v2
-            num_workers: 2
-
-        - task_key: train_model
-          depends_on:
-            - task_key: aggregate_gold
-          description: "Treina modelo e registra via MLflow"
-          notebook_path: notebooks/04_train_model.py
-          base_parameters:
-            input_gold_table: ${bundle.configuration.output_gold_table}
-            output_model: ${bundle.configuration.output_model}
-          new_cluster:
-            spark_version: 13.3.x-scala2.12
-            node_type_id: Standard_DS3_v2
-            num_workers: 2
-
-        - task_key: batch_inference
-          depends_on:
-            - task_key: train_model
-          description: "Executa inferência em lote com o modelo treinado"
-          notebook_path: notebooks/05_batch_inference.py
-          base_parameters:
-            model_name: ${bundle.configuration.output_model}
-            input_data_table: ${bundle.configuration.output_gold_table}
-          new_cluster:
-            spark_version: 13.3.x-scala2.12
-            node_type_id: Standard_DS3_v2
-            num_workers: 2
+        - notebook:
+            path: notebooks/01_ingest_bronze.py
+        - notebook:
+            path: notebooks/02_transform_silver.py
+        - notebook:
+            path: notebooks/03_aggregate_gold.py
+        - notebook:
+            path: notebooks/04_train_model.py
+        - notebook:
+            path: notebooks/05_batch_inference.py

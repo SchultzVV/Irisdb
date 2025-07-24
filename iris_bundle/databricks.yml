@@ -1,18 +1,39 @@
 bundle:
   name: iris_bundle
-  run_as:
-    user_name: "{{env.DATABRICKS_USER}}"
 
-include:
-  - notebooks/*
-  - resources/jobs/*
-  - resources/pipelines/*
-  - tests/*
-  - setup.py
-  - requirements.txt
+variables:
+  cluster_id:
+    description: "ID do cluster existente para executar jobs"
+    default: "your-cluster-id-here"
+  source:
+    description: "Caminho para o arquivo CSV fonte"
+    default: "dbfs:/tmp/iris/iris.csv"
+  output_bronze_table:
+    description: "Tabela de destino da camada Bronze"
+    default: "telecom_lakehouse.ml_assets.iris_bronze"
+  output_silver_table:
+    description: "Tabela de destino da camada Silver"
+    default: "telecom_lakehouse.ml_assets.iris_silver"
+  output_gold_table:
+    description: "Tabela de destino da camada Gold"
+    default: "telecom_lakehouse.ml_assets.iris_gold"
+  output_model:
+    description: "Nome do modelo MLflow"
+    default: "telecom_lakehouse.ml_assets.iris_model"
+
+sync:
+  include:
+    - notebooks/*
+    - resources/jobs/*
+    - resources/pipelines/*
+    - setup.py
+    - requirements.txt
+    - tests/*
+
+include: []
 
 targets:
   dev:
-    workspace:
-      host: https://your-workspace-url
     mode: development
+    variables:
+      cluster_id: "your-cluster-id-here"

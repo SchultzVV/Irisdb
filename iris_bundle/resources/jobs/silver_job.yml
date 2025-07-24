@@ -8,6 +8,6 @@ resources:
           notebook_task:
             notebook_path: notebooks/02_transform_silver.py
             base_parameters:
-              input_bronze_table: ${bundle.configuration.output_bronze_table}
-              output_silver_table: ${bundle.configuration.output_silver_table}
-          existing_cluster_id: ${bundle.configuration.cluster_id}
+              input_bronze_table: ${var.output_bronze_table}
+              output_silver_table: ${var.output_silver_table}
+          existing_cluster_id: ${var.cluster_id}
