@@ -3,6 +3,8 @@ name: CI Bundle Deploy
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'resources/pipelines/lakehouse_pipeline.yml'  # Só dispara se esse arquivo mudar
 
 jobs:
   deploy:
@@ -11,8 +13,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install Databricks CLI
-        run: |
-          pip install databricks-cli
+        run: pip install databricks-cli
 
       - name: Configure Databricks CLI
         run: databricks auth login --host ${{ secrets.DATABRICKS_HOST }} --token ${{ secrets.DATABRICKS_TOKEN }}

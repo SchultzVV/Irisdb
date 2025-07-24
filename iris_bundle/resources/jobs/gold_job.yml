@@ -1,0 +1,13 @@
+resources:
+  jobs:
+    gold_job:
+      name: iris_gold_aggregate
+      tasks:
+        - task_key: aggregate_gold
+          description: "Agrega os dados por espécie e grava na camada Gold"
+          notebook_task:
+            notebook_path: notebooks/03_aggregate_gold.py
+            base_parameters:
+              input_silver_table: ${bundle.configuration.output_silver_table}
+              output_gold_table: ${bundle.configuration.output_gold_table}
+          existing_cluster_id: ${bundle.configuration.cluster_id}

@@ -1,0 +1,13 @@
+resources:
+  jobs:
+    bronze_job:
+      name: iris_bronze_ingestion
+      tasks:
+        - task_key: ingest_bronze
+          description: "Ingesta os dados brutos no Delta Lake (camada Bronze)"
+          notebook_task:
+            notebook_path: notebooks/01_ingest_bronze.py
+            base_parameters:
+              source: ${bundle.configuration.source}
+              output_bronze_table: ${bundle.configuration.output_bronze_table}
+          existing_cluster_id: ${bundle.configuration.cluster_id}

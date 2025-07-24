@@ -1,0 +1,30 @@
+datasources:
+  iris_data:
+    execution_engine:
+      class_name: SparkDFExecutionEngine
+    data_connectors:
+      default_runtime_data_connector_name:
+        class_name: RuntimeDataConnector
+        batch_identifiers:
+          - default_identifier_name
+    class_name: Datasource
+
+expectations_store_name: expectations_store
+validations_store_name: validations_store
+checkpoint_store_name: checkpoint_store
+
+stores:
+  expectations_store:
+    class_name: ExpectationsStore
+    store_backend:
+      class_name: InMemoryStoreBackend
+  validations_store:
+    class_name: ValidationsStore
+    store_backend:
+      class_name: InMemoryStoreBackend
+  checkpoint_store:
+    class_name: CheckpointStore
+    store_backend:
+      class_name: InMemoryStoreBackend
+
+data_docs_sites: {}

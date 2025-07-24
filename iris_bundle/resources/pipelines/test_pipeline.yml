@@ -1,0 +1,9 @@
+resources:
+  pipelines:
+    test_pipeline:
+      name: iris-test-pipeline
+      target: iris_test_pipeline
+      libraries:
+        - notebook: notebooks/test_data_ingestion.py
+      configuration:
+        input_path: dbfs:/tmp/mock/iris.csv
