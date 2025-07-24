@@ -323,6 +323,6 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ---
 
-**Desenvolvido com ❤️ para demonstrar MLOps com Databricks Asset Bundles**
+**exemplo do workflow**
 
-*Para dúvidas ou suporte, abra uma issue no repositório.*
+![alt text](image.png)
