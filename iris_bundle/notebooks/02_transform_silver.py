@@ -38,45 +38,33 @@ print("✅ Silver transformation complete")
 print(f"✅ Data saved to table: {output_silver_table}")
 print(f"✅ Cleaned {df_clean.count()} rows")
 
-# 🧪 VALIDAÇÃO DE QUALIDADE DE DADOS SILVER
+# 🧪 VALIDAÇÕES SILVER
 print("\n🧪 Executando validações Silver...")
 
-try:
-    import great_expectations as gx
-    from great_expectations.core.batch import RuntimeBatchRequest
-    
-    # Configurar contexto GE
-    context_root_dir = "/Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/great_expectations"
-    context = gx.get_context(context_root_dir=context_root_dir)
-    
-    # Criar batch request para a tabela Silver
-    batch_request = RuntimeBatchRequest(
-        datasource_name="iris_data",
-        data_connector_name="default_runtime_data_connector_name",
-        data_asset_name=output_silver_table,
-        runtime_parameters={"query": f"SELECT * FROM {output_silver_table}"},
-        batch_identifiers={"default_identifier_name": "silver_batch"}
-    )
-    
-    # Executar checkpoint de validação
-    results = context.run_checkpoint(
-        checkpoint_name="iris_silver_checkpoint",
-        validations=[
-            {
-                "batch_request": batch_request,
-                "expectation_suite_name": "iris_silver_suite"
-            }
-        ]
-    )
-    
-    if results["success"]:
-        print("✅ VALIDAÇÃO SILVER: Todos os testes passaram!")
-        stats = results.get("statistics", {})
-        print(f"📊 Expectativas avaliadas: {stats.get('evaluated_expectations', 'N/A')}")
-        print(f"✅ Taxa de sucesso: {stats.get('success_percent', 'N/A')}%")
-    else:
-        print("❌ VALIDAÇÃO SILVER: Algumas validações falharam!")
-        
-except Exception as e:
-    print(f"⚠️ Validação Silver falhou: {e}")
-    print("📝 Continuando execução...")
+# Validação 1: Sem valores nulos (após limpeza)
+from pyspark.sql.functions import col, count as spark_count, when
+
+null_counts = df_clean.select([
+    spark_count(when(col(c).isNull(), c)).alias(c) for c in df_clean.columns
+]).collect()[0]
+
+for col_name in df_clean.columns:
+    null_count = null_counts[col_name]
+    assert null_count == 0, f"❌ Silver ainda tem nulos em {col_name}: {null_count}"
+
+print("✅ Silver: Sem valores nulos")
+
+# Validação 2: Todos os valores são positivos
+numeric_cols = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
+for col_name in numeric_cols:
+    min_val = df_clean.select(col(col_name)).agg({col_name: "min"}).collect()[0][0]
+    assert min_val > 0, f"❌ Valores não positivos em {col_name}: {min_val}"
+
+print("✅ Silver: Todos os valores numéricos positivos")
+
+# Validação 3: Contagem razoável após limpeza
+final_count = df_clean.count()
+assert final_count >= 100, f"❌ Muitos dados perdidos na limpeza: {final_count}"
+print(f"✅ Silver: {final_count} registros limpos mantidos")
+
+print("🎉 SILVER: Todas as validações passaram!")

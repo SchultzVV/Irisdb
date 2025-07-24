@@ -11,7 +11,17 @@
 
 # COMMAND ----------
 
-import great_expectations as gx
+# Instalar Great Expectations se não estiver disponível
+try:
+    import great_expectations as gx
+    print("✅ Great Expectations já instalado")
+except ImportError:
+    print("📦 Instalando Great Expectations...")
+    %pip install great-expectations==0.15.50
+    dbutils.library.restartPython()
+    import great_expectations as gx
+    print("✅ Great Expectations instalado com sucesso")
+
 from great_expectations.core.batch import RuntimeBatchRequest
 from great_expectations.core.yaml_handler import YAMLHandler
 import json

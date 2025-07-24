@@ -2,3 +2,6 @@ pytest
 coverage
 pandas
 seaborn
+great-expectations>=0.15.0
+pyspark
+mlflow

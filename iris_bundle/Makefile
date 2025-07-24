@@ -73,6 +73,12 @@ training_job:
 	@set -a && . ./.env && set +a && \
 	$(DATABRICKS_BIN) bundle run training_job --target dev
 
+# 🧪 Validação de qualidade de dados com Great Expectations
+run_data_quality:
+	@echo "🧪 Executando validação de qualidade de dados..."
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run data_quality_job --target dev
+
 # 🔄 Workflow completo com dependências (Bronze → Silver → Gold → Training)
 run_workflow:
 	@echo "🚀 Executando workflow completo: Bronze → Silver → Gold → Training..."

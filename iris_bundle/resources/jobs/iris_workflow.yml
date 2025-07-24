@@ -11,9 +11,6 @@ resources:
             base_parameters:
               source: ${var.source}
               output_bronze_table: ${var.output_bronze_table}
-          compute:
-            - spec:
-                kind: serverless
 
         # Step 2: Silver (depende do Bronze)
         - task_key: silver_transform
@@ -25,9 +22,6 @@ resources:
             base_parameters:
               input_bronze_table: ${var.output_bronze_table}
               output_silver_table: ${var.output_silver_table}
-          compute:
-            - spec:
-                kind: serverless
 
         # Step 3: Gold (depende do Silver)
         - task_key: gold_aggregate
@@ -39,9 +33,6 @@ resources:
             base_parameters:
               input_silver_table: ${var.output_silver_table}
               output_gold_table: ${var.output_gold_table}
-          compute:
-            - spec:
-                kind: serverless
 
         # Step 4: Training (depende do Gold)
         - task_key: model_training
@@ -53,6 +44,3 @@ resources:
             base_parameters:
               input_gold_table: ${var.output_gold_table}
               output_model: ${var.output_model}
-          compute:
-            - spec:
-                kind: serverless
