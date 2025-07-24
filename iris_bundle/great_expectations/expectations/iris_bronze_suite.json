@@ -1,0 +1,139 @@
+{
+  "data_asset_type": "Table",
+  "expectation_suite_name": "iris_bronze_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 100,
+        "max_value": 200
+      },
+      "meta": {
+        "notes": "Dataset Iris deve ter aproximadamente 150 registros"
+      }
+    },
+    {
+      "expectation_type": "expect_table_columns_to_match_ordered_list",
+      "kwargs": {
+        "column_list": [
+          "sepal_length",
+          "sepal_width", 
+          "petal_length",
+          "petal_width",
+          "species"
+        ]
+      },
+      "meta": {
+        "notes": "Estrutura padrão do dataset Iris"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "sepal_length"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null", 
+      "kwargs": {
+        "column": "sepal_width"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "petal_length"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "petal_width"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "species"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "sepal_length",
+        "type_": "double"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "sepal_width", 
+        "type_": "double"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "petal_length",
+        "type_": "double"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {
+        "column": "petal_width",
+        "type_": "double"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "species",
+        "value_set": ["setosa", "versicolor", "virginica"]
+      },
+      "meta": {
+        "notes": "Apenas 3 espécies válidas no dataset Iris"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "sepal_length",
+        "min_value": 3.0,
+        "max_value": 10.0
+      },
+      "meta": {
+        "notes": "Valores biologicamente plausíveis para comprimento da sépala"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "sepal_width",
+        "min_value": 1.0,
+        "max_value": 6.0
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "petal_length", 
+        "min_value": 0.5,
+        "max_value": 8.0
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "petal_width",
+        "min_value": 0.1,
+        "max_value": 4.0
+      }
+    }
+  ],
+  "meta": {
+    "great_expectations_version": "0.15.0",
+    "created_by": "iris_mlops_pipeline",
+    "created_at": "2025-07-24"
+  }
+}

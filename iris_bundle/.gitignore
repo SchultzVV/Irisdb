@@ -108,6 +108,12 @@ Thumbs.db
 .bundle/
 
 # =====================================
+# 📊 Great Expectations
+# =====================================
+great_expectations/uncommitted/
+great_expectations/plugins/
+
+# =====================================
 # 🧹 Outros
 # =====================================
 .mypy_cache/
