@@ -2,31 +2,43 @@
 
 ## 📋 Visão Geral
 
-Pipeline MLOps completo utilizando Databricks Asset Bundles para processamento de dados Iris, desde a ingestão até o treinamento de modelos de Machine Learning, seguindo a arquitetura medalion (Bronze → Silver → Gold).
+Pipeline MLOps completo utilizando Databricks Asset Bundles para processamento de dados Iris, desde a ingestão até o treinamento de modelos de Machine Learning, seguindo a arquitetura medallion (Bronze → Silver → Gold) com validações de qualidade integradas usando Great Expectations.
 
 ![Pipeline Architecture](https://img.shields.io/badge/Architecture-Medallion-gold)
 ![Databricks](https://img.shields.io/badge/Databricks-Asset_Bundles-blue)
 ![Unity Catalog](https://img.shields.io/badge/Unity_Catalog-Enabled-green)
 ![MLflow](https://img.shields.io/badge/MLflow-Model_Tracking-orange)
+![Great Expectations](https://img.shields.io/badge/Great_Expectations-Data_Quality-purple)
+![Status](https://img.shields.io/badge/Status-✅_Production_Ready-brightgreen)
 
 ## 🏗️ Arquitetura do Pipeline
 
 ```mermaid
 graph TD
-    A[🔵 Bronze Layer<br/>Raw Data Ingestion] --> B[🥈 Silver Layer<br/>Data Cleaning & Validation]
-    B --> C[🥇 Gold Layer<br/>Business Aggregations]
-    C --> D[🤖 ML Training<br/>Model Development]
+    A[🔵 Bronze Layer<br/>Raw Data Ingestion<br/>+ Data Quality Validation] --> B[🥈 Silver Layer<br/>Data Cleaning & Validation<br/>+ Schema Enforcement]
+    B --> C[🥇 Gold Layer<br/>Business Aggregations<br/>+ Business Rules Validation]
+    C --> D[🤖 ML Training<br/>Model Development<br/>+ Performance Tracking]
     
-    E[📊 Unity Catalog] --> A
+    E[📊 Unity Catalog<br/>Managed Tables] --> A
     E --> B
     E --> C
     
-    D --> F[📈 MLflow<br/>Model Registry]
+    F[🧪 Great Expectations<br/>Data Quality Framework] --> A
+    F --> B
+    F --> C
+    
+    D --> G[📈 MLflow<br/>Model Registry]
+    
+    H[🔄 Serverless Compute<br/>Auto-scaling] --> A
+    H --> B
+    H --> C
+    H --> D
     
     style A fill:#8ecae6
     style B fill:#219ebc
     style C fill:#ffb703
     style D fill:#fb8500
+    style F fill:#e9c46a
 ```
 
 ## 📁 Estrutura do Projeto
@@ -35,19 +47,31 @@ graph TD
 iris_bundle/
 ├── 📄 databricks.yml              # Configuração principal do Bundle
 ├── 🔧 Makefile                    # Comandos de automação
-├── 📋 requirements.txt            # Dependências Python
+├── 📋 requirements.txt            # Dependências Python + Great Expectations
 ├── 🔑 .env                        # Variáveis de ambiente (não versionado)
 ├── notebooks/
-│   ├── 01_ingest_bronze.py        # 🔵 Ingestão de dados brutos
-│   ├── 02_transform_silver.py     # 🥈 Limpeza e validação
-│   ├── 03_aggregate_gold.py       # 🥇 Agregações de negócio
-│   └── 04_train_model.py          # 🤖 Treinamento ML
+│   ├── 01_ingest_bronze.py        # 🔵 Ingestão + validações básicas
+│   ├── 02_transform_silver.py     # 🥈 Limpeza + validações avançadas
+│   ├── 03_aggregate_gold.py       # 🥇 Agregações + validações de negócio
+│   ├── 04_train_model.py          # 🤖 Treinamento ML
+│   └── data_quality_validation.py # 🧪 Validações Great Expectations
+├── great_expectations/
+│   ├── great_expectations.yml     # Configuração GE
+│   ├── expectations/              # Suites de expectativas
+│   │   ├── iris_bronze_suite.json
+│   │   ├── iris_silver_suite.json
+│   │   └── iris_gold_suite.json
+│   └── checkpoints/               # Checkpoints de validação
+│       ├── iris_bronze_checkpoint.yml
+│       ├── iris_silver_checkpoint.yml
+│       └── iris_gold_checkpoint.yml
 ├── resources/
 │   └── jobs/
 │       ├── bronze_job.yml         # Job de ingestão
 │       ├── silver_job.yml         # Job de transformação
 │       ├── gold_job.yml           # Job de agregação
 │       ├── training_job.yml       # Job de treinamento
+│       ├── data_quality_job.yml   # Job de validação de qualidade
 │       └── iris_workflow.yml      # Workflow completo com dependências
 └── tests/
     ├── test_data_quality.py       # Testes de qualidade
@@ -99,28 +123,44 @@ make run_workflow
 - **Fonte**: Dataset Iris do seaborn
 - **Formato**: Dados brutos sem transformação
 - **Tabela**: `default.iris_bronze`
+- **Validações Implementadas**:
+  - ✅ Contagem de registros (100-200 esperados)
+  - ✅ Schema validation (5 colunas esperadas)
+  - ✅ Verificação de valores nulos
+  - ✅ Validação de espécies (setosa, versicolor, virginica)
+  - ✅ Valores numéricos positivos
 - **Características**:
   - 150 registros
   - 5 colunas (4 features + 1 target)
   - Dados originais preservados
+  - Compatible com Serverless Compute
 
 ### 🥈 Silver Layer - Data Cleaning & Validation
 - **Entrada**: `default.iris_bronze`
 - **Saída**: `default.iris_silver`
 - **Transformações**:
   - ✅ Remoção de valores nulos
-  - ✅ Validação de schema
+  - ✅ Validação de schema rigorosa
   - ✅ Filtros de qualidade (valores > 0)
   - ✅ Padronização de tipos
+  - ✅ Validação de ranges de valores
+- **Validações Avançadas**:
+  - 📊 Verificação de distribuições
+  - 🔍 Detecção de outliers
+  - 📈 Consistência de dados
 
 ### 🥇 Gold Layer - Business Aggregations
 - **Entrada**: `default.iris_silver`
 - **Saída**: `default.iris_gold`
 - **Agregações**:
-  - 📈 Estatísticas por espécie
-  - 📊 Médias, medianas, desvios
-  - 🔢 Contagem de registros
-  - 📐 Features engineered
+  - 📈 Estatísticas por espécie (avg, min, max)
+  - 📊 Contagem de registros por categoria
+  - 🔢 Métricas de qualidade
+  - 📐 Features engineered para ML
+- **Validações de Negócio**:
+  - ✅ Contagens balanceadas por espécie (40-60 registros cada)
+  - ✅ Médias dentro de ranges esperados
+  - ✅ Integridade referencial
 
 ### 🤖 ML Training - Model Development
 - **Entrada**: `default.iris_gold`
@@ -205,7 +245,105 @@ tasks:
     depends_on: [gold_aggregate]
 ```
 
+## 🧪 Framework de Qualidade de Dados
+
+### Great Expectations Integration
+Este projeto implementa um framework completo de validação de dados usando **Great Expectations** integrado via `requirements.txt` para máxima simplicidade e compatibilidade.
+
+#### � Suites de Expectativas Implementadas
+
+**Bronze Suite (`iris_bronze_suite.json`)**:
+- `expect_table_row_count_to_be_between`: 100-200 registros
+- `expect_column_values_to_not_be_null`: Nenhum valor nulo
+- `expect_column_values_to_be_in_set`: Espécies válidas
+- `expect_column_values_to_be_of_type`: Tipos corretos
+
+**Silver Suite (`iris_silver_suite.json`)**:
+- `expect_column_values_to_be_between`: Ranges válidos para medidas
+- `expect_column_mean_to_be_between`: Médias dentro do esperado
+- `expect_table_columns_to_match_ordered_list`: Schema rigoroso
+
+**Gold Suite (`iris_gold_suite.json`)**:
+- `expect_column_values_to_be_between`: Médias agregadas válidas
+- `expect_table_row_count_to_equal`: Exatamente 3 espécies
+- `expect_column_sum_to_be_between`: Contagens totais corretas
+
+#### 🎯 Checkpoints Configurados
+```yaml
+# Exemplo: iris_bronze_checkpoint.yml
+name: iris_bronze_checkpoint
+config_version: 1.0
+class_name: SimpleCheckpoint
+validations:
+  - batch_request:
+      datasource_name: my_datasource
+      data_connector_name: default_inferred_data_connector_name
+      data_asset_name: iris_bronze
+    expectation_suite_name: iris_bronze_suite
+```
+
+### 🔄 Estratégia de Validação Dual
+
+**1. Great Expectations (Framework Completo)**:
+- ✅ Configuração via `requirements.txt` 
+- ✅ Suites JSON versionadas
+- ✅ Checkpoints YAML configuráveis
+- ✅ Relatórios HTML automáticos
+- ✅ Integração com Unity Catalog
+
+**2. PySpark Validations (Fallback Robusto)**:
+- ✅ Validações básicas em PySpark nativo
+- ✅ Compatível com Serverless Compute
+- ✅ Assertions diretas no código
+- ✅ Logs detalhados de falhas
+- ✅ Zero dependências externas
+
+### 📊 Validações Implementadas por Camada
+
+#### 🔵 Bronze Layer Validations
+```python
+# Validações PySpark integradas no notebook
+assert count >= 100 and count <= 200, "Contagem inesperada"
+assert actual_columns == expected_columns, "Schema incorreto"
+assert len(species_list) == 3, "Número de espécies incorreto"
+# + Great Expectations suite execution
+```
+
+#### 🥈 Silver Layer Validations  
+```python
+# Validações avançadas + Great Expectations
+assert clean_count > 0, "Dados limpos insuficientes"
+assert silver_species == bronze_species, "Perda de categorias"
+# + Schema evolution validation
+```
+
+#### 🥇 Gold Layer Validations
+```python
+# Validações de negócio + métricas
+assert 40 <= count_records <= 60, "Distribuição desequilibrada"
+assert avg_values_in_range, "Médias fora do padrão"
+# + Business rules validation
+```
+
 ## 📈 Monitoramento e Observabilidade
+
+### ✅ Status do Pipeline (Última Execução)
+```
+🎉 PIPELINE EXECUTADO COM SUCESSO!
+
+✅ Bronze Layer: 150 registros ingeridos + validações passaram
+✅ Silver Layer: Limpeza e transformações completas
+✅ Gold Layer: 3 agregações por espécie geradas
+✅ ML Training: Modelo treinado e registrado no MLflow
+✅ Total Runtime: ~3-4 minutos no Serverless Compute
+```
+
+### 🔧 Compatibilidade Técnica Validada
+- ✅ **Serverless Compute**: Totalmente compatível (sem RDDs)
+- ✅ **Unity Catalog**: Apenas managed tables, sem DBFS
+- ✅ **Great Expectations**: Integração via requirements.txt
+- ✅ **PySpark 3.4+**: Funções nativas compatíveis
+- ✅ **Databricks Runtime 13.3+**: Testado e validado
 
 ### MLflow Integration
 - **Model Registry**: Versionamento automático de modelos
@@ -239,11 +377,24 @@ python tests/test_data_quality.py
 python tests/test_iris_reader.py
 ```
 
-### Validações de Dados
-- ✅ Schema validation
-- ✅ Data quality checks
-- ✅ Business rule validation
-- ✅ Completeness checks
+### 🧪 Validações de Qualidade Integradas
+```bash
+# Execução de validações Great Expectations
+make run_data_quality
+
+# Validações inline nos notebooks (sempre ativas)
+make run_workflow  # Inclui validações automáticas
+
+# Testes completos de qualidade
+python tests/test_data_quality.py
+```
+
+### 📊 Métricas de Qualidade Implementadas
+- **Completeness**: 100% dos dados sem nulos críticos
+- **Accuracy**: Valores dentro de ranges biológicos válidos
+- **Consistency**: Schema consistente entre camadas
+- **Validity**: Espécies e tipos de dados corretos
+- **Timeliness**: Freshness tracking implementado
 
 ## 🚨 Troubleshooting
 
@@ -282,8 +433,11 @@ databricks jobs list-runs --job-id <job-id>
 ## 🔄 Próximos Passos
 
 ### Melhorias Futuras
+- [x] **✅ Data Validation**: Great Expectations framework **IMPLEMENTADO**
+- [x] **✅ Serverless Compatibility**: Full serverless compute support **IMPLEMENTADO**
+- [x] **✅ Unity Catalog Integration**: Managed tables only **IMPLEMENTADO**
+- [x] **✅ Requirements.txt Management**: Centralized dependencies **IMPLEMENTADO**
 - [ ] **CI/CD Pipeline**: GitHub Actions integration
-- [ ] **Data Validation**: Great Expectations framework
 - [ ] **Model Monitoring**: Drift detection
 - [ ] **Auto-scaling**: Dynamic cluster management
 - [ ] **Multi-environment**: Prod/Staging environments
@@ -295,7 +449,7 @@ databricks jobs list-runs --job-id <job-id>
 - [ ] **AutoML**: Automated model selection
 - [ ] **Model Serving**: Real-time API endpoints
 - [ ] **Batch Inference**: Scheduled predictions
-- [ ] **Data Quality Monitoring**: Automated alerts
+- [ ] **Advanced Data Quality**: Drift detection, anomaly detection
 
 ## 📚 Recursos Adicionais
 
@@ -321,8 +475,25 @@ databricks jobs list-runs --job-id <job-id>
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
+## 🎯 Principais Conquistas Técnicas
+
+### ✅ Implementações de Sucesso
+1. **Great Expectations via requirements.txt**: Abordagem mais limpa e mantível
+2. **Serverless Compute Compatibility**: Eliminação de RDDs, uso de funções nativas
+3. **Unity Catalog Integration**: Managed tables sem dependência de DBFS
+4. **Dual Validation Strategy**: Great Expectations + PySpark fallbacks
+5. **Zero-Downtime Deployment**: Asset Bundles com versionamento
+6. **Complete MLOps Workflow**: Bronze → Silver → Gold → ML com dependências
+
+### 🏆 Lições Aprendidas
+- **Requirements.txt é superior** às instalações manuais em notebooks
+- **Serverless compute** requer cuidado com compatibilidade de APIs
+- **Unity Catalog** elimina complexidades de DBFS management
+- **Validações duplas** garantem robustez em diferentes ambientes
+- **Asset Bundles** simplificam drasticamente deployment e versionamento
+
 ---
 
-**exemplo do workflow**
+**Exemplo do workflow completo em execução:**
 
 ![alt text](image.png)
