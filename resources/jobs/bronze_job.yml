@@ -4,9 +4,13 @@ resources:
       name: iris_bronze_ingestion
       tasks:
         - task_key: ingest_bronze
-          description: "Ingesta os dados brutos no Delta Lake (camada Bronze)"
+          description: "Ingesta os dados brutos no Delta Lake (camada Bronze) usando Unity Catalog"
           notebook_task:
             notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/01_ingest_bronze
             base_parameters:
               source: ${var.source}
               output_bronze_table: ${var.output_bronze_table}
+              catalog_name: ${var.catalog_name}
+              schema_name: ${var.schema_name}
+          timeout_seconds: 3600
+          max_retries: 1

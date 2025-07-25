@@ -2,29 +2,31 @@ bundle:
   name: iris_bundle
 
 variables:
-  cluster_id:
-    description: "ID do cluster existente para executar jobs"
-    default: "your-cluster-id-here"
   source:
-    description: "Caminho para o arquivo CSV fonte"
-    default: "dbfs:/tmp/iris/iris.csv"
+    description: "Fonte de dados do dataset Iris (via seaborn)"
+    default: "seaborn://iris"
   output_bronze_table:
-    description: "Tabela de destino da camada Bronze"
+    description: "Tabela Unity Catalog para camada Bronze"
     default: "default.iris_bronze"
   output_silver_table:
-    description: "Tabela de destino da camada Silver"
+    description: "Tabela Unity Catalog para camada Silver"
     default: "default.iris_silver"
   output_gold_table:
-    description: "Tabela de destino da camada Gold"
+    description: "Tabela Unity Catalog para camada Gold"
     default: "default.iris_gold"
   output_model:
-    description: "Nome do modelo MLflow"
-    default: "telecom_lakehouse.ml_assets.iris_model"
+    description: "Nome do modelo MLflow no Unity Catalog"
+    default: "default.iris_model"
+  catalog_name:
+    description: "Nome do catálogo Unity Catalog"
+    default: "main"
+  schema_name:
+    description: "Nome do schema Unity Catalog"
+    default: "default"
 
 sync:
   include:
     - notebooks/*
-    - setup.py
     - requirements.txt
     - tests/*
 
@@ -34,5 +36,17 @@ include:
 targets:
   dev:
     mode: development
+    default: true
     variables:
-      cluster_id: "your-cluster-id-here"
+      catalog_name: "main"
+      schema_name: "default"
+  
+  prod:
+    mode: production
+    variables:
+      catalog_name: "prod"
+      schema_name: "iris_pipeline"
+      output_bronze_table: "prod.iris_pipeline.iris_bronze"
+      output_silver_table: "prod.iris_pipeline.iris_silver"
+      output_gold_table: "prod.iris_pipeline.iris_gold"
+      output_model: "prod.iris_pipeline.iris_model"
