@@ -47,24 +47,14 @@ graph TD
 iris_bundle/
 ├── 📄 databricks.yml              # Configuração principal do Bundle
 ├── 🔧 Makefile                    # Comandos de automação
-├── 📋 requirements.txt            # Dependências Python + Great Expectations
+├── 📋 requirements.txt            # Dependências Python (PySpark, MLflow, etc)
 ├── 🔑 .env                        # Variáveis de ambiente (não versionado)
 ├── notebooks/
-│   ├── 01_ingest_bronze.py        # 🔵 Ingestão + validações básicas
+│   ├── 01_ingest_bronze.py        # 🔵 Ingestão + validações PySpark
 │   ├── 02_transform_silver.py     # 🥈 Limpeza + validações avançadas
 │   ├── 03_aggregate_gold.py       # 🥇 Agregações + validações de negócio
 │   ├── 04_train_model.py          # 🤖 Treinamento ML
-│   └── data_quality_validation.py # 🧪 Validações Great Expectations
-├── great_expectations/
-│   ├── great_expectations.yml     # Configuração GE
-│   ├── expectations/              # Suites de expectativas
-│   │   ├── iris_bronze_suite.json
-│   │   ├── iris_silver_suite.json
-│   │   └── iris_gold_suite.json
-│   └── checkpoints/               # Checkpoints de validação
-│       ├── iris_bronze_checkpoint.yml
-│       ├── iris_silver_checkpoint.yml
-│       └── iris_gold_checkpoint.yml
+│   └── data_quality_validation.py # 🧪 Validações PySpark nativas
 ├── resources/
 │   └── jobs/
 │       ├── bronze_job.yml         # Job de ingestão
@@ -247,8 +237,8 @@ tasks:
 
 ## 🧪 Framework de Qualidade de Dados
 
-### Great Expectations Integration
-Este projeto implementa um framework completo de validação de dados usando **Great Expectations** integrado via `requirements.txt` para máxima simplicidade e compatibilidade.
+### PySpark Native Validations
+Este projeto implementa um framework completo de validação de dados usando **PySpark nativo** para máxima simplicidade, compatibilidade e performance.
 
 #### � Suites de Expectativas Implementadas
 
@@ -282,21 +272,24 @@ validations:
     expectation_suite_name: iris_bronze_suite
 ```
 
-### 🔄 Estratégia de Validação Dual
+### 🔄 Estratégia de Validação 
 
-**1. Great Expectations (Framework Completo)**:
-- ✅ Configuração via `requirements.txt` 
-- ✅ Suites JSON versionadas
-- ✅ Checkpoints YAML configuráveis
-- ✅ Relatórios HTML automáticos
-- ✅ Integração com Unity Catalog
-
-**2. PySpark Validations (Fallback Robusto)**:
+**PySpark Validations (Fallback Robusto)**:
 - ✅ Validações básicas em PySpark nativo
 - ✅ Compatível com Serverless Compute
 - ✅ Assertions diretas no código
 - ✅ Logs detalhados de falhas
 - ✅ Zero dependências externas
+
+
+**obs: poderia ser com Great Expectations (Framework Completo)**
+
+Para issom preisa ser feito:
+- [ - ] Configuração via `requirements.txt` 
+- [ - ] Suites JSON versionadas
+- [ - ] Checkpoints YAML configuráveis
+- [ - ] Relatórios HTML automáticos
+- [ - ] Integração com Unity Catalog
 
 ### 📊 Validações Implementadas por Camada
 
@@ -341,7 +334,6 @@ assert avg_values_in_range, "Médias fora do padrão"
 ### 🔧 Compatibilidade Técnica Validada
 - ✅ **Serverless Compute**: Totalmente compatível (sem RDDs)
 - ✅ **Unity Catalog**: Apenas managed tables, sem DBFS
-- ✅ **Great Expectations**: Integração via requirements.txt
 - ✅ **PySpark 3.4+**: Funções nativas compatíveis
 - ✅ **Databricks Runtime 13.3+**: Testado e validado
 
@@ -478,15 +470,14 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ## 🎯 Principais Conquistas Técnicas
 
 ### ✅ Implementações de Sucesso
-1. **Great Expectations via requirements.txt**: Abordagem mais limpa e mantível
-2. **Serverless Compute Compatibility**: Eliminação de RDDs, uso de funções nativas
-3. **Unity Catalog Integration**: Managed tables sem dependência de DBFS
-4. **Dual Validation Strategy**: Great Expectations + PySpark fallbacks
+1. **Serverless Compute Compatibility**: Eliminação de RDDs, uso de funções nativas
+2. **Unity Catalog Integration**: Managed tables sem dependência de DBFS
+3. **Validation Strategy**: 
+PySpark fallbacks
 5. **Zero-Downtime Deployment**: Asset Bundles com versionamento
 6. **Complete MLOps Workflow**: Bronze → Silver → Gold → ML com dependências
 
-### 🏆 Lições Aprendidas
-- **Requirements.txt é superior** às instalações manuais em notebooks
+
 - **Serverless compute** requer cuidado com compatibilidade de APIs
 - **Unity Catalog** elimina complexidades de DBFS management
 - **Validações duplas** garantem robustez em diferentes ambientes
@@ -496,4 +487,4 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 **Exemplo do workflow completo em execução:**
 
-![alt text](image.png)
+![alt text](image-1.png)
