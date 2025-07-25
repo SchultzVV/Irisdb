@@ -10,6 +10,3 @@ resources:
             base_parameters:
               input_bronze_table: ${var.output_bronze_table}
               output_silver_table: ${var.output_silver_table}
-          compute:
-            - spec:
-                kind: serverless

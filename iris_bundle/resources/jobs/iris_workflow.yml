@@ -2,6 +2,10 @@ resources:
   jobs:
     iris_workflow:
       name: iris_complete_workflow
+      schedule:
+        quartz_cron_expression: "0 45 11 * * ?"  # Todo dia às 11:40 AM
+        timezone_id: "America/Sao_Paulo"
+        pause_status: "UNPAUSED"
       tasks:
         # Step 1: Bronze
         - task_key: bronze_ingestion
@@ -23,7 +27,8 @@ resources:
               input_bronze_table: ${var.output_bronze_table}
               output_silver_table: ${var.output_silver_table}
 
-        # Step 3: Gold (depende do Silver)
+        # Step 3: Gold (depende do Silver) Esse step foi criado pra criar uma dependência explícita
+        # com a possibilidade de popular a feature store antes de treinar o modelo
         - task_key: gold_aggregate
           depends_on:
             - task_key: silver_transform
@@ -42,5 +47,5 @@ resources:
           notebook_task:
             notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/04_train_model
             base_parameters:
-              input_gold_table: ${var.output_gold_table}
+              input_gold_table: ${var.output_silver_table}  # PERCEBA que estamos usando o silver aqui
               output_model: ${var.output_model}

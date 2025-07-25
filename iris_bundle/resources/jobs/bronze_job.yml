@@ -10,6 +10,3 @@ resources:
             base_parameters:
               source: ${var.source}
               output_bronze_table: ${var.output_bronze_table}
-          compute:
-            - spec:
-                kind: serverless

@@ -8,8 +8,5 @@ resources:
           notebook_task:
             notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/04_train_model
             base_parameters:
-              input_gold_table: ${var.output_gold_table}
+              input_gold_table: ${var.output_silver_table}  # Use Silver data for ML training
               output_model: ${var.output_model}
-          compute:
-            - spec:
-                kind: serverless

@@ -100,7 +100,46 @@ run_pipeline_sequence:
 
 
 list_tables:
+	@set -a && . ./.env && set +a && \
 	databricks workspace list /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks
+
+list_jobs:
+	@echo "📋 Listando todos os jobs do bundle..."
+	@set -a && . ./.env && set +a && \
+	databricks jobs list
+
+
+schedule_enable:
+	@echo "✅ Habilitando agendamento do workflow..."
+	@set -a && . ./.env && set +a && \
+	JOB_ID=$$(databricks jobs list --output json | jq -r '.jobs[] | select(.settings.name=="iris_complete_workflow") | .job_id'); \
+	if [ "$$JOB_ID" != "" ] && [ "$$JOB_ID" != "null" ]; then \
+		databricks jobs reset --job-id $$JOB_ID --json-file resources/jobs/iris_workflow.yml; \
+		echo "✅ Agendamento habilitado para job ID: $$JOB_ID"; \
+	else \
+		echo "❌ Job 'iris_complete_workflow' não encontrado"; \
+	fi
+
+schedule_disable:
+	@echo "⏸️ Desabilitando agendamento do workflow..."
+	@set -a && . ./.env && set +a && \
+	JOB_ID=$$(databricks jobs list --output json | jq -r '.jobs[] | select(.settings.name=="iris_complete_workflow") | .job_id'); \
+	if [ "$$JOB_ID" != "" ] && [ "$$JOB_ID" != "null" ]; then \
+		databricks jobs update --job-id $$JOB_ID --json '{"schedule": {"pause_status": "PAUSED"}}'; \
+		echo "⏸️ Agendamento desabilitado para job ID: $$JOB_ID"; \
+	else \
+		echo "❌ Job 'iris_complete_workflow' não encontrado"; \
+	fi
+
+check_schedule:
+	@echo "🔍 Verificando status do agendamento do job 'iris_complete_workflow'..."
+	@set -a && . ./.env && set +a && \
+	databricks jobs get 709121597410934
+
+list_runs:
+	@echo "📊 Listando execuções recentes do workflow..."
+	@set -a && . ./.env && set +a && \
+	databricks jobs list-runs --job-id 709121597410934 --limit 10
 
 # =====================================
 # 🧹 Limpeza e debug
