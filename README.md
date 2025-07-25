@@ -8,7 +8,6 @@ Pipeline MLOps completo utilizando Databricks Asset Bundles para processamento d
 ![Databricks](https://img.shields.io/badge/Databricks-Asset_Bundles-blue)
 ![Unity Catalog](https://img.shields.io/badge/Unity_Catalog-Enabled-green)
 ![MLflow](https://img.shields.io/badge/MLflow-Model_Tracking-orange)
-![Great Expectations](https://img.shields.io/badge/Great_Expectations-Data_Quality-purple)
 ![Status](https://img.shields.io/badge/Status-✅_Production_Ready-brightgreen)
 
 ## 🏗️ Arquitetura do Pipeline
