@@ -25,21 +25,42 @@ print(f"🕒 Timestamp: {datetime.now()}")
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 📊 Carregamento de Dados Base
+# MAGIC ## 📊 Carregamento de Dados da Camada Silver
 
 # COMMAND ----------
 
-# Carregar dataset Iris
-df_iris = sns.load_dataset("iris")
-df_spark = spark.createDataFrame(df_iris)
+# Carregar dados da tabela Silver do Unity Catalog
+silver_table = "hive_metastore.default.iris_silver"
+print(f"📊 Carregando dados da tabela Silver: {silver_table}")
 
-# Adicionar ID único para cada registro
-df_with_id = df_spark.withColumn("iris_id", F.monotonically_increasing_id())
-
-# Mostrar dados base
-print("📊 Dataset Iris carregado:")
-df_with_id.show(5)
-print(f"📦 Total de registros: {df_with_id.count()}")
+try:
+    df_silver = spark.table(silver_table)
+    print("✅ Tabela Silver carregada com sucesso!")
+    
+    # Verificar esquema e dados
+    print("📋 Schema da tabela Silver:")
+    df_silver.printSchema()
+    
+    # Adicionar ID único para cada registro (para feature store)
+    df_with_id = df_silver.withColumn("iris_id", F.monotonically_increasing_id())
+    
+    # Mostrar dados base
+    print("📊 Dados Silver carregados:")
+    df_with_id.show(5)
+    print(f"📦 Total de registros: {df_with_id.count()}")
+    
+except Exception as e:
+    print(f"❌ Erro ao carregar tabela Silver: {str(e)}")
+    print("🔄 Usando dados do seaborn como fallback...")
+    
+    # Fallback para dados do seaborn
+    df_iris = sns.load_dataset("iris")
+    df_spark = spark.createDataFrame(df_iris)
+    df_with_id = df_spark.withColumn("iris_id", F.monotonically_increasing_id())
+    
+    print("📊 Dataset Iris (fallback) carregado:")
+    df_with_id.show(5)
+    print(f"📦 Total de registros: {df_with_id.count()}")
 
 # COMMAND ----------
 

@@ -10,24 +10,46 @@ resources:
         project: "iris_pipeline"
         component: "full_mlops"
       tasks:
-        # 1. Feature Store Creation
+        # 1. Data Pipeline (Bronze → Silver → Gold)
+        - task_key: bronze_ingestion
+          description: "Ingestão Bronze"
+          notebook_task:
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/01_ingest_bronze
+            base_parameters:
+              source: ${var.source}
+              output_bronze_table: ${var.output_bronze_table}
+
+        - task_key: silver_transform
+          depends_on:
+            - task_key: bronze_ingestion
+          description: "Transformação Silver"
+          notebook_task:
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/02_transform_silver
+            base_parameters:
+              input_bronze_table: ${var.output_bronze_table}
+              output_silver_table: ${var.output_silver_table}
+
+        # 2. Feature Store Creation
         - task_key: create_feature_store
-          description: "Criar/atualizar Feature Store"
+          depends_on:
+            - task_key: silver_transform
+          description: "Criar/atualizar Feature Store baseado na camada Silver"
           notebook_task:
             notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/feature_store/iris_feature_store_simple
             base_parameters:
               catalog_name: ${var.catalog_name}
               schema_name: ${var.schema_name}
 
-        # 2. Data Pipeline (Bronze → Silver → Gold)
-        - task_key: bronze_ingestion
+        # 3. EDA & Model Benchmark
+        - task_key: eda_benchmark
           depends_on:
             - task_key: create_feature_store
-          description: "Ingestão Bronze"
+          description: "EDA e Benchmark de Modelos usando Feature Store"
           notebook_task:
-            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/01_ingest_bronze
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/eda_benchmark
             base_parameters:
-              source: ${var.source}
+              catalog_name: ${var.catalog_name}
+              schema_name: ${var.schema_name}
               output_bronze_table: ${var.output_bronze_table}
 
         - task_key: silver_transform

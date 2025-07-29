@@ -92,6 +92,12 @@ run_automl:
 	@set -a && . ./.env && set +a && \
 	$(DATABRICKS_BIN) bundle run automl_job --target dev
 
+# 📊 EDA & Model Benchmark - Análise da Feature Store
+run_eda_benchmark:
+	@echo "📊 Executando EDA e Benchmark de Modelos..."
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run eda_benchmark_job --target dev
+
 # 📊 Model Monitoring - Drift detection
 run_monitoring:
 	@echo "📊 Executando monitoramento de modelo..."

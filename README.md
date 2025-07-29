@@ -201,8 +201,11 @@ make clean
 
 ### 🚀 Novos Comandos MLOps Avançados
 ```bash
-# Feature Store - Criação de features engineered
+# Feature Store - Criação de features engineered baseado na camada Silver
 make run_feature_store
+
+# EDA & Benchmark - Análise exploratória e benchmark de modelos
+make run_eda_benchmark
 
 # AutoML - Seleção automática de modelos
 make run_automl
@@ -254,11 +257,21 @@ tasks:
 
 ### 🏪 Feature Store
 - **Funcionalidade**: Gestão centralizada de features engineered
+- **Fonte de dados**: Tabela Silver do Unity Catalog (iris_silver)
 - **Features criadas**: 10+ features derivadas (ratios, áreas, distâncias)
 - **Versionamento**: Controle de versão automático com timestamps
 - **Reutilização**: Features podem ser compartilhadas entre modelos
 - **Validação**: Qualidade automática das features
 - **Comando**: `make run_feature_store`
+
+### 📊 EDA & Model Benchmark
+- **Funcionalidade**: Análise exploratória completa da Feature Store
+- **Visualizações**: 15+ gráficos e análises estatísticas
+- **PCA**: Análise de componentes principais para redução de dimensionalidade
+- **Benchmark**: 10 modelos comparados automaticamente
+- **Métricas**: Accuracy, Precision, Recall, F1-Score, Cross-validation
+- **MLflow**: Todos os experimentos registrados automaticamente
+- **Comando**: `make run_eda_benchmark`
 
 ### 🤖 AutoML Pipeline
 - **Algoritmos**: 6 modelos comparados automaticamente
