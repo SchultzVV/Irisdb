@@ -199,6 +199,21 @@ make deploy
 make clean
 ```
 
+### 🚀 Novos Comandos MLOps Avançados
+```bash
+# Feature Store - Criação de features engineered
+make run_feature_store
+
+# AutoML - Seleção automática de modelos
+make run_automl
+
+# Model Monitoring - Detecção de drift
+make run_monitoring
+
+# Pipeline MLOps Completo
+make run_mlops_full
+```
+
 ## 🛠️ Configuração Detalhada
 
 ### databricks.yml - Configuração Principal
@@ -235,7 +250,39 @@ tasks:
     depends_on: [gold_aggregate]
 ```
 
-## 🧪 Framework de Qualidade de Dados
+## � MLOps Avançado - Novas Funcionalidades
+
+### 🏪 Feature Store
+- **Funcionalidade**: Gestão centralizada de features engineered
+- **Features criadas**: 10+ features derivadas (ratios, áreas, distâncias)
+- **Versionamento**: Controle de versão automático com timestamps
+- **Reutilização**: Features podem ser compartilhadas entre modelos
+- **Validação**: Qualidade automática das features
+- **Comando**: `make run_feature_store`
+
+### 🤖 AutoML Pipeline
+- **Algoritmos**: 6 modelos comparados automaticamente
+  - Random Forest, Gradient Boosting, SVM
+  - Logistic Regression, KNN, Naive Bayes
+- **Seleção**: Melhor modelo escolhido por cross-validation
+- **Métricas**: Accuracy, Precision, Recall, F1-Score
+- **Registro**: Todos os modelos salvos no MLflow
+- **Comando**: `make run_automl`
+
+### 📊 Model Monitoring
+- **Drift Detection**: Detecção automática de drift nos dados
+- **Performance Tracking**: Monitoramento de métricas do modelo
+- **Alertas**: Sistema de alertas automatizado
+- **Dashboards**: Relatórios de monitoramento detalhados
+- **Agendamento**: Execução diária automática
+- **Comando**: `make run_monitoring`
+
+### 🚀 CI/CD Pipeline
+- **GitHub Actions**: Pipeline completo de CI/CD
+- **Ambientes**: Dev, Staging, Production
+- **Testes**: Automatização de testes e validações
+- **Deploy**: Deploy automático baseado em branches
+- **Monitoramento**: Alertas integrados via Slack
 
 ### PySpark Native Validations
 Este projeto implementa um framework completo de validação de dados usando **PySpark nativo** para máxima simplicidade, compatibilidade e performance.
@@ -407,10 +454,25 @@ make test-auth
 make run_workflow
 ```
 
-#### 3. Compute não disponível
+#### 4. Feature Store Dependencies
 ```bash
-# Verifique se o workspace tem Serverless habilitado
-# Configure compute_id manualmente se necessário
+# Verificar se Feature Store está disponível
+# No Databricks notebook, execute:
+# %pip list | grep databricks
+
+# Se não estiver disponível, instalar:
+# %pip install databricks-feature-store
+
+# Ou usar Unity Catalog Feature Tables (recomendado)
+# Não requer dependências especiais
+```
+
+#### 5. Runtime Requirements
+```bash
+# Para Feature Store, use:
+# - Databricks Runtime 9.1 LTS ML+
+# - Ou Serverless Compute (recomendado)
+# - Unity Catalog habilitado
 ```
 
 ### Logs e Debug
@@ -429,19 +491,20 @@ databricks jobs list-runs --job-id <job-id>
 - [x] **✅ Serverless Compatibility**: Full serverless compute support **IMPLEMENTADO**
 - [x] **✅ Unity Catalog Integration**: Managed tables only **IMPLEMENTADO**
 - [x] **✅ Requirements.txt Management**: Centralized dependencies **IMPLEMENTADO**
-- [ ] **CI/CD Pipeline**: GitHub Actions integration
-- [ ] **Model Monitoring**: Drift detection
-- [ ] **Auto-scaling**: Dynamic cluster management
+- [x] **✅ CI/CD Pipeline**: GitHub Actions integration **IMPLEMENTADO**
+- [x] **✅ Model Monitoring**: Drift detection **IMPLEMENTADO**
+- [x] **✅ Feature Store**: Centralized feature management **IMPLEMENTADO**
+- [x] **✅ AutoML**: Automated model selection **IMPLEMENTADO**
 - [ ] **Multi-environment**: Prod/Staging environments
 - [ ] **Real-time Inference**: Streaming predictions
 - [ ] **A/B Testing**: Model comparison framework
 
 ### Expansões Possíveis
-- [ ] **Feature Store**: Centralized feature management
-- [ ] **AutoML**: Automated model selection
 - [ ] **Model Serving**: Real-time API endpoints
 - [ ] **Batch Inference**: Scheduled predictions
-- [ ] **Advanced Data Quality**: Drift detection, anomaly detection
+- [ ] **Advanced Data Quality**: Anomaly detection
+- [ ] **MLflow Model Serving**: Automated deployment
+- [ ] **Delta Live Tables**: Streaming data pipeline
 
 ## 📚 Recursos Adicionais
 

@@ -80,6 +80,30 @@ run_data_quality:
 	@set -a && . ./.env && set +a && \
 	$(DATABRICKS_BIN) bundle run data_quality_job --target dev
 
+# 🏪 Feature Store - Criação e atualização
+run_feature_store:
+	@echo "🏪 Criando/atualizando Feature Store..."
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run feature_store_job --target dev
+
+# 🤖 AutoML - Seleção automática de modelos
+run_automl:
+	@echo "🤖 Executando AutoML para seleção de modelos..."
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run automl_job --target dev
+
+# 📊 Model Monitoring - Drift detection
+run_monitoring:
+	@echo "📊 Executando monitoramento de modelo..."
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run model_monitoring_job --target dev
+
+# 🚀 MLOps Pipeline Completo
+run_mlops_full:
+	@echo "🚀 Executando pipeline MLOps completo..."
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run mlops_full_pipeline --target dev
+
 # 🔄 Workflow completo com dependências (Bronze → Silver → Gold → Training)
 run_workflow:
 	@echo "🚀 Executando workflow completo: Bronze → Silver → Gold → Training..."

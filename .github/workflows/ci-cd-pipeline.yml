@@ -1,0 +1,174 @@
+name: 🚀 Iris MLOps CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 6 * * *'  # Todo dia às 6:00 AM para monitoramento
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+
+env:
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+jobs:
+  # 🧪 Testes e Validação
+  test-and-validate:
+    runs-on: ubuntu-latest
+    name: 🧪 Tests & Validation
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: 📦 Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest black flake8 databricks-cli
+        
+    - name: 🎨 Code Formatting Check
+      run: |
+        black --check notebooks/ tests/
+        flake8 notebooks/ tests/ --max-line-length=88 --ignore=E203,W503
+        
+    - name: 🧪 Run Unit Tests
+      run: |
+        python -m pytest tests/ -v --tb=short
+        
+    - name: 🔧 Install Databricks CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        
+    - name: ✅ Validate Bundle Configuration
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle validate --target dev
+
+  # 🚀 Deploy para Dev
+  deploy-dev:
+    needs: test-and-validate
+    runs-on: ubuntu-latest
+    name: 🚀 Deploy to Dev
+    if: github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Install Databricks CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        
+    - name: 🚀 Deploy Bundle to Dev
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle deploy --target dev
+        
+    - name: 🧪 Run Integration Tests
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle run bronze_job --target dev --wait
+        databricks bundle run data_quality_job --target dev --wait
+
+  # 🎯 Deploy para Staging
+  deploy-staging:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    name: 🎯 Deploy to Staging
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Install Databricks CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        
+    - name: 🎯 Deploy Bundle to Staging
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle deploy --target staging
+        
+    - name: 🔄 Run Full Pipeline Test
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle run iris_workflow --target staging --wait
+
+  # 🏭 Deploy para Produção
+  deploy-production:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    name: 🏭 Deploy to Production
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Install Databricks CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        
+    - name: 🏭 Deploy Bundle to Production
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle deploy --target prod
+        
+    - name: 📊 Run Model Monitoring
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle run model_monitoring_job --target prod
+        
+    - name: 🎯 Model Performance Validation
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle run model_validation_job --target prod --wait
+
+  # 📊 Model Monitoring Job
+  model-monitoring:
+    runs-on: ubuntu-latest
+    name: 📊 Model Monitoring
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Install Databricks CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        
+    - name: 📊 Run Drift Detection
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks bundle run drift_detection_job --target prod --wait
+        
+    - name: 🔔 Send Alerts if Drift Detected
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        text: '🚨 Model drift detected in production!'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

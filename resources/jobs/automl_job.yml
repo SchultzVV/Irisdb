@@ -1,0 +1,18 @@
+resources:
+  jobs:
+    automl_job:
+      name: iris_automl_pipeline
+      tags:
+        project: "iris_pipeline"
+        component: "automl"
+      tasks:
+        - task_key: automl_training
+          description: "Executa AutoML para seleção automática de modelos"
+          notebook_task:
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/automl_pipeline
+            base_parameters:
+              feature_table: ${var.catalog_name}.${var.schema_name}.iris_features_selected
+              model_registry_name: ${var.output_model}
+              experiment_name: "/iris_automl_experiment"
+          timeout_seconds: 7200  # 2 horas
+          max_retries: 1

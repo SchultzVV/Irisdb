@@ -1,0 +1,12 @@
+resources:
+  jobs:
+    feature_store_job:
+      name: iris_feature_store_creation
+      tasks:
+        - task_key: create_feature_store
+          description: "Criar Feature Store Iris com abordagem simplificada"
+          notebook_task:
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/feature_store/iris_feature_store_simple
+            source: WORKSPACE
+          timeout_seconds: 1800  # 30 minutos
+          max_retries: 2

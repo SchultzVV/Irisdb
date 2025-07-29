@@ -19,7 +19,7 @@ variables:
     default: "default.iris_model"
   catalog_name:
     description: "Nome do catálogo Unity Catalog"
-    default: "main"
+    default: "hive_metastore"
   schema_name:
     description: "Nome do schema Unity Catalog"
     default: "default"
@@ -27,6 +27,7 @@ variables:
 sync:
   include:
     - notebooks/*
+    - feature_store/*
     - requirements.txt
     - tests/*
 
@@ -38,15 +39,15 @@ targets:
     mode: development
     default: true
     variables:
-      catalog_name: "main"
+      catalog_name: "hive_metastore"
       schema_name: "default"
   
   prod:
     mode: production
     variables:
-      catalog_name: "prod"
+      catalog_name: "main"
       schema_name: "iris_pipeline"
-      output_bronze_table: "prod.iris_pipeline.iris_bronze"
-      output_silver_table: "prod.iris_pipeline.iris_silver"
-      output_gold_table: "prod.iris_pipeline.iris_gold"
-      output_model: "prod.iris_pipeline.iris_model"
+      output_bronze_table: "main.iris_pipeline.iris_bronze"
+      output_silver_table: "main.iris_pipeline.iris_silver"
+      output_gold_table: "main.iris_pipeline.iris_gold"
+      output_model: "main.iris_pipeline.iris_model"
