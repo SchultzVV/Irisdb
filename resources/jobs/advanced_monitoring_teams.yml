@@ -1,0 +1,44 @@
+resources:
+  jobs:
+    advanced_monitoring_teams:
+      name: iris_advanced_monitoring_teams
+      tags:
+        project: "iris_pipeline"
+        component: "monitoring"
+        alerts: "teams"
+      tasks:
+        # 1. Garantir que Bronze existe
+        - task_key: ensure_bronze
+          description: "Garantir dados Bronze estão disponíveis"
+          notebook_task:
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/01_ingest_bronze
+            base_parameters:
+              source: ${var.source}
+              output_bronze_table: ${var.output_bronze_table}
+          timeout_seconds: 900
+          
+        # 2. Garantir que Silver existe (depende do Bronze)
+        - task_key: ensure_silver
+          depends_on:
+            - task_key: ensure_bronze
+          description: "Garantir dados Silver estão disponíveis"
+          notebook_task:
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/02_transform_silver
+            base_parameters:
+              input_bronze_table: ${var.output_bronze_table}
+              output_silver_table: ${var.output_silver_table}
+          timeout_seconds: 900
+          
+        # 3. Monitoramento avançado (depende do Silver)
+        - task_key: advanced_monitoring
+          depends_on:
+            - task_key: ensure_silver
+          description: "Monitoramento avançado com alertas Teams"
+          notebook_task:
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/advanced_monitoring_teams
+            base_parameters:
+              silver_table: ${var.output_silver_table}
+              webhook_scope: "teams"
+              webhook_key: "webhook_url"
+          timeout_seconds: 1800  # 30 minutos
+          max_retries: 2

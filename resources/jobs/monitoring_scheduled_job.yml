@@ -1,0 +1,29 @@
+resources:
+  jobs:
+    monitoring_scheduled:
+      name: iris_monitoring_scheduled_daily
+      tags:
+        project: "iris_pipeline"
+        component: "monitoring"
+        schedule: "daily"
+      
+      # Schedule diário como fallback
+      schedule:
+        quartz_cron_expression: "0 0 8 * * ?"  # Todo dia às 8:00 AM
+        timezone_id: "America/Sao_Paulo"
+        pause_status: "PAUSED"
+      
+      tasks:
+        - task_key: daily_monitoring
+          description: "Monitoramento diário agendado (fallback)"
+          notebook_task:
+            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/advanced_monitoring_teams
+            base_parameters:
+              silver_table: ${var.catalog_name}.${var.schema_name}.iris_silver
+              model_name: ${var.output_model}
+              drift_threshold: "0.05"
+              performance_threshold: "0.05"
+              webhook_scope: "teams"
+              webhook_key: "webhook_url"
+          timeout_seconds: 1800  # 30 minutos
+          max_retries: 2

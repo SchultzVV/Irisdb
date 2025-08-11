@@ -5,7 +5,7 @@ resources:
       schedule:
         quartz_cron_expression: "0 45 11 * * ?"  # Todo dia às 11:40 AM
         timezone_id: "America/Sao_Paulo"
-        pause_status: "UNPAUSED"
+        pause_status: "PAUSED"
       tasks:
         # Step 1: Bronze
         - task_key: bronze_ingestion

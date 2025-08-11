@@ -103,8 +103,24 @@ make validate
 # Faça o deploy dos recursos
 make deploy
 
+# Configure notificações Teams (opcional)
+make setup-teams
+
 # Execute o workflow completo
 make run_workflow
+```
+
+### 4️⃣ Monitoramento Avançado com Teams
+
+```bash
+# Configure webhook do Microsoft Teams primeiro
+make setup-teams
+
+# Execute monitoramento básico
+make run_monitoring
+
+# Execute monitoramento avançado com alertas
+make run_advanced_monitoring
 ```
 
 ## 📊 Camadas de Dados (Medallion Architecture)
@@ -379,6 +395,80 @@ assert avg_values_in_range, "Médias fora do padrão"
 ```
 
 ## 📈 Monitoramento e Observabilidade
+
+### 🚨 Monitoramento Avançado com Microsoft Teams
+
+O pipeline inclui monitoramento avançado que envia alertas automáticos para Microsoft Teams quando detecta:
+
+- **🔍 Data Quality Issues**: Valores nulos, outliers, desequilíbrios
+- **� Volume Anomalies**: Contagem baixa ou alta de registros  
+- **📈 Statistical Changes**: Mudanças nas distribuições de features
+- **⚠️ Pipeline Status**: Estado geral do processamento
+
+#### Configuração do Teams
+
+```bash
+# 1. Configure o webhook do Teams
+make setup-teams
+
+# 2. Execute o monitoramento completo (Bronze → Silver → Monitoramento)
+make run_advanced_monitoring
+
+# 3. Alternativa manual (se jobs estiverem bloqueados)
+make run_monitoring_complete
+```
+
+#### Execução e Dependências
+
+**Pipeline Completo (Recomendado):**
+- ✅ Garante criação de dados Bronze
+- ✅ Garante criação de dados Silver  
+- ✅ Executa monitoramento com todas as verificações
+- ✅ Envia alertas automáticos para Teams
+
+**Execução Manual:**
+- 📱 Fornece link direto para notebook interativo
+- 🔧 Permite execução paso-a-paso
+- 🚀 Contorna limitações temporárias de jobs
+
+#### Métricas Monitoradas
+
+**Data Quality Checks:**
+- Verificação de valores nulos em todas as colunas
+- Análise de outliers via desvio padrão
+- Balanceamento de classes (proporção máx/mín)
+- Volume total de registros processados
+
+### 🔧 Solução de Problemas
+
+#### Erro: "Triggering new runs is currently disabled"
+```bash
+# Solução: Use execução manual via notebook
+make run_monitoring_complete
+# Abra o link fornecido e execute o notebook no Databricks
+```
+
+#### Erro: "Table iris_silver cannot be found"
+```bash
+# Solução 1: Execute pipeline completo primeiro
+make run_pipeline_sequence
+
+# Solução 2: Use notebook que cria as dependências
+make run_monitoring_complete
+```
+
+#### Webhook Teams não configurado
+```bash
+# Configure o webhook do Microsoft Teams
+make setup-teams
+# Siga as instruções para obter a URL do webhook
+```
+
+**Performance Monitoring:**
+- Accuracy, Precision, Recall, F1-Score
+- Comparação com baseline de referência
+- Threshold de degradação configurável (padrão: 5%)
+- Alertas automáticos via Teams
 
 ### ✅ Status do Pipeline (Última Execução)
 ```

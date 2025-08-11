@@ -41,6 +41,11 @@ test-auth:
 	@set -a && . ./.env && set +a && \
 	cd /tmp && databricks current-user me
 
+# 📲 Configurar webhook do Microsoft Teams
+setup-teams:
+	@echo "📲 Configurando webhook do Microsoft Teams..."
+	@./scripts/setup_teams_webhook.sh
+
 # Alvo para validar, fazer deploy e rodar pipeline
 validate:
 	@set -a && . ./.env && set +a && \
@@ -104,6 +109,28 @@ run_monitoring:
 	@set -a && . ./.env && set +a && \
 	$(DATABRICKS_BIN) bundle run model_monitoring_job --target dev
 
+# 🚨 Advanced Monitoring com Teams - Alertas automáticos (com dependências)
+run_advanced_monitoring:
+	@echo "🚨 Executando monitoramento avançado com notificações Teams..."
+	@echo "📋 Este comando executa: Bronze → Silver → Monitoramento"
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run advanced_monitoring_teams --target dev
+
+# 🚨 Monitoramento simples (sem dependências)
+run_monitoring_only:
+	@echo "📊 Executando apenas monitoramento (assume que dados existem)..."
+	@set -a && . ./.env && set +a && \
+	$(DATABRICKS_BIN) bundle run model_monitoring_job --target dev
+
+# 🚨 Setup completo de monitoramento (execução direta)
+run_monitoring_complete:
+	@echo "🚨 Executando setup completo de monitoramento via notebook..."
+	@echo "📋 Este comando executa: Bronze → Silver → Monitoramento completo"
+	@echo "📱 Abra o Databricks e execute o notebook:"
+	@echo "   /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/monitoring_complete_setup"
+	@echo "🔗 Link direto:"
+	@echo "   https://dbc-aecddb3a-6d52.cloud.databricks.com/#workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/monitoring_complete_setup"
+
 # 🚀 MLOps Pipeline Completo
 run_mlops_full:
 	@echo "🚀 Executando pipeline MLOps completo..."
@@ -128,6 +155,15 @@ run_pipeline_sequence:
 	@echo "4️⃣ Executando Training Job..."
 	@$(MAKE) training_job
 	@echo "✅ Pipeline completo executado com sucesso!"
+
+# 🚨 Preparar dados para monitoramento
+setup_monitoring_data:
+	@echo "🚨 Preparando dados para monitoramento..."
+	@echo "1️⃣ Criando dados Bronze..."
+	@$(MAKE) run_bronze
+	@echo "2️⃣ Criando dados Silver..."
+	@$(MAKE) run_silver
+	@echo "✅ Dados preparados para monitoramento!"
 
 
 list_tables:
