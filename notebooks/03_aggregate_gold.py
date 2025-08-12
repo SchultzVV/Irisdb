@@ -6,8 +6,8 @@ try:
     input_silver_table = dbutils.widgets.get("input_silver_table")
     output_gold_table = dbutils.widgets.get("output_gold_table")
 except:
-    input_silver_table = "default.iris_silver"
-    output_gold_table = "default.iris_gold"
+    input_silver_table = "workspace.default.iris_silver"
+    output_gold_table = "workspace.default.iris_gold"
 
 # Load data from Silver table (Unity Catalog)
 df = spark.table(input_silver_table)

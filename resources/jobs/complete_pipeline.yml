@@ -1,0 +1,70 @@
+resources:
+  jobs:
+    complete_pipeline:
+      name: iris_complete_pipeline
+      tags:
+        type: "pipeline"
+        project: "iris_pipeline"
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "UTC"
+        pause_status: "PAUSED"
+      tasks:
+        # Bronze Layer
+        - task_key: ingest_bronze
+          description: "Ingestão Bronze - Unity Catalog"
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/01_ingest_bronze
+            base_parameters:
+              source: ${var.source}
+              output_table: ${var.catalog_name}.${var.schema_name}.iris_bronze
+          timeout_seconds: 900
+          max_retries: 2
+
+        # Silver Layer
+        - task_key: transform_silver
+          description: "Transformação Silver - Unity Catalog"
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/02_transform_silver
+            base_parameters:
+              input_table: ${var.catalog_name}.${var.schema_name}.iris_bronze
+              output_table: ${var.catalog_name}.${var.schema_name}.iris_silver
+          timeout_seconds: 900
+          max_retries: 2
+          depends_on:
+            - task_key: ingest_bronze
+
+        # Gold Layer
+        - task_key: aggregate_gold
+          description: "Agregação Gold - Unity Catalog"
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/03_aggregate_gold
+            base_parameters:
+              input_table: ${var.catalog_name}.${var.schema_name}.iris_silver
+              output_table: ${var.catalog_name}.${var.schema_name}.iris_gold
+          timeout_seconds: 900
+          max_retries: 2
+          depends_on:
+            - task_key: transform_silver
+
+        # Model Training
+        - task_key: train_model
+          description: "Treinamento ML com MLflow"
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/04_train_model
+            base_parameters:
+              input_table: ${var.catalog_name}.${var.schema_name}.iris_silver
+              model_name: iris_classifier
+              stage: "Production"
+          timeout_seconds: 1800
+          max_retries: 2
+          depends_on:
+            - task_key: transform_silver
+
+      email_notifications:
+        on_start: 
+          - ${var.notification_email}
+        on_success: 
+          - ${var.notification_email}
+        on_failure: 
+          - ${var.notification_email}

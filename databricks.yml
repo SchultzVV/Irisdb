@@ -19,10 +19,16 @@ variables:
     default: "default.iris_model"
   catalog_name:
     description: "Nome do catálogo Unity Catalog"
-    default: "hive_metastore"
+    default: "workspace"
   schema_name:
     description: "Nome do schema Unity Catalog"
     default: "default"
+  notification_email:
+    description: "Email para notificações dos jobs"
+    default: "admin@company.com"
+  teams_webhook:
+    description: "Webhook do Microsoft Teams para alertas"
+    default: ""
 
 sync:
   include:
@@ -39,7 +45,7 @@ targets:
     mode: development
     default: true
     variables:
-      catalog_name: "hive_metastore"
+      catalog_name: "workspace"
       schema_name: "default"
   
   prod:

@@ -2,11 +2,18 @@ resources:
   jobs:
     gold_job:
       name: iris_gold_aggregate
+      tags:
+        layer: "gold"
+        project: "iris_pipeline"
+        trigger_order: "3a"
+        triggered_by: "silver_job"
       tasks:
         - task_key: aggregate_gold
-          description: "Agrega os dados por espécie e grava na camada Gold"
+          description: "Agregação de dados na camada Gold do Unity Catalog"
           notebook_task:
-            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/03_aggregate_gold
+            notebook_path: ${workspace.file_path}/notebooks/03_aggregate_gold
             base_parameters:
-              input_silver_table: ${var.output_silver_table}
-              output_gold_table: ${var.output_gold_table}
+              input_table: ${var.catalog_name}.${var.schema_name}.iris_silver
+              output_table: ${var.catalog_name}.${var.schema_name}.iris_gold
+          timeout_seconds: 900
+          max_retries: 2

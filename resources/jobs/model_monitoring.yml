@@ -1,0 +1,31 @@
+resources:
+  jobs:
+    model_monitoring:
+      name: iris_model_monitoring
+      tags:
+        type: "monitoring"
+        project: "iris_pipeline"
+        trigger_order: "4"
+        triggered_by: "training_job"
+      schedule:
+        quartz_cron_expression: "0 0 8 * * ?"
+        timezone_id: "UTC"
+        pause_status: "PAUSED"
+      tasks:
+        - task_key: monitor_model
+          description: "Monitoramento de modelo MLflow com alertas Teams"
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/model_monitoring
+            base_parameters:
+              model_name: iris_classifier
+              stage: "Production"
+              catalog_name: ${var.catalog_name}
+              schema_name: ${var.schema_name}
+              teams_webhook: ${var.teams_webhook}
+              alert_threshold: "0.85"
+          timeout_seconds: 1200
+          max_retries: 1
+
+      email_notifications:
+        on_failure: 
+          - ${var.notification_email}

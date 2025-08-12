@@ -5,43 +5,10 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
-  # 📅 Agendamentos automáticos (descomente para ativar)
-  # 
-  # Formato cron: 'minuto hora dia mês dia_da_semana'
-  # * = qualquer valor
-  # */X = a cada X (exemplo: */6 = a cada 6 horas)
-  # 1,3,5 = valores específicos (segunda, quarta, sexta)
-  # 1-5 = intervalo (segunda a sexta)
-  #
-  # 🕐 Para ativar: descomente as linhas abaixo e escolha o horário desejado
-  # schedule:
-  #   # Segunda-feira às 6:00 AM para pipeline semanal
-  #   - cron: '0 6 * * 1'
-  #   
-  #   # 🌅 Exemplos comuns de agendamentos:
-  #   
-  #   # Todo dia às 7:00 AM (horário de produção típico)
-  #   # - cron: '0 7 * * *'
-  #   
-  #   # Todo dia às 22:00 (10 PM - horário noturno) 
-  #   # - cron: '0 22 * * *'
-  #   
-  #   # Toda segunda, quarta e sexta às 8:00 AM
-  #   # - cron: '0 8 * * 1,3,5'
-  #   
-  #   # Primeiro dia de cada mês às 9:00 AM (relatórios mensais)
-  #   # - cron: '0 9 1 * *'
-  #   
-  #   # A cada 6 horas (monitoramento contínuo)
-  #   # - cron: '0 */6 * * *'
-  #   
-  #   # Apenas em dias úteis às 6:30 AM (seg-sex)
-  #   # - cron: '30 6 * * 1-5'
-  #
-  #   # A cada 2 horas durante horário comercial (9-17h) em dias úteis
-  #   # - cron: '0 9-17/2 * * 1-5'
-  #
-  # 💡 Dica: Use https://crontab.guru/ para testar expressões cron
+  schedule:
+    # pausando o scheldule
+    
+    - cron: '0 6 * * 1'  # Segunda-feira às 6:00 AM para pipeline semanal
   workflow_dispatch:
     inputs:
       environment:
@@ -126,14 +93,14 @@ jobs:
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
         echo "📋 Jobs deployados:"
-        databricks jobs list --output json | jq '.jobs[] | select(.settings.name | contains("iris_")) | {name: .settings.name, job_id: .job_id}' || echo "Jobs listados"
+        databricks jobs list --output json | jq '.jobs[] | select(.settings.name | contains("iris_")) | {name: .settings.name, job_id: .job_id}'
         
     - name: 🌟 Execute Complete Pipeline
       if: github.event.inputs.run_pipeline != 'false'
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
         echo "🚀 Executando pipeline completo..."
-        databricks bundle run complete_pipeline --target dev --wait || echo "⚠️ Pipeline execution completed"
+        databricks bundle run complete_pipeline --target dev --wait || echo "⚠️ Pipeline execution completed with warnings"
         
     - name: 🔍 Verify Pipeline Results
       if: github.event.inputs.run_pipeline != 'false'
@@ -150,12 +117,13 @@ jobs:
         echo "📊 Executando monitoramento do modelo..."
         databricks bundle run model_monitoring --target dev --wait || echo "Model monitoring completed"
 
-  # 🎯 Deploy para Main (Produção)
-  deploy-and-run-main:
-    needs: test-and-validate
+  # 🎯 Deploy para Staging
+  deploy-staging:
+    needs: deploy-dev
     runs-on: ubuntu-latest
-    name: 🎯 Deploy & Run Main Pipeline
+    name: 🎯 Deploy to Staging
     if: github.ref == 'refs/heads/main'
+    environment: staging
     
     steps:
     - name: 📥 Checkout Code
@@ -165,40 +133,23 @@ jobs:
       run: |
         curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
         
-    - name: 🎯 Deploy Bundle to Main
+    - name: 🎯 Deploy Bundle to Staging
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
-        databricks bundle deploy --target dev
+        databricks bundle deploy --target staging
         
-    - name: 📋 List Deployed Jobs
+    - name: 🔄 Run Pipeline Test
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
-        echo "📋 Jobs deployados em produção:"
-        databricks jobs list --output json | jq '.jobs[] | select(.settings.name | contains("iris_")) | {name: .settings.name, job_id: .job_id}' || echo "Jobs listados"
-        
-    - name: 🔄 Execute Complete Pipeline
-      run: |
-        export PATH="$HOME/.databricks/bin:$PATH"
-        echo "🚀 Executando pipeline completo em produção..."
-        databricks bundle run complete_pipeline --target dev --wait
-        
-    - name: 📊 Execute Model Monitoring
-      run: |
-        export PATH="$HOME/.databricks/bin:$PATH"
-        echo "📊 Executando monitoramento do modelo em produção..."
-        databricks bundle run model_monitoring --target dev --wait
-        
-    - name: ✅ Production Deployment Complete
-      run: |
-        echo "✅ Deploy em produção concluído com sucesso!"
-        echo "🎯 Pipeline MLOps executado completamente"
-        echo "📊 Monitoramento ativo"
+        databricks bundle run complete_pipeline --target staging --wait
 
-  # 🔄 Pipeline Semanal Automatizado
-  weekly-pipeline:
+  # 🏭 Deploy para Produção
+  deploy-production:
+    needs: deploy-staging
     runs-on: ubuntu-latest
-    name: 🔄 Weekly Automated Pipeline
-    if: github.event_name == 'schedule'
+    name: 🏭 Deploy to Production
+    if: github.ref == 'refs/heads/main'
+    environment: production
     
     steps:
     - name: 📥 Checkout Code
@@ -208,14 +159,12 @@ jobs:
       run: |
         curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
         
-    - name: 🔄 Execute Weekly Pipeline
+    - name: 🏭 Deploy Bundle to Production
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
-        echo "🔄 Executando pipeline semanal automatizado..."
-        databricks bundle run complete_pipeline --target dev --wait
+        databricks bundle deploy --target prod
         
-    - name: 📊 Weekly Monitoring Report
+    - name: 📊 Run Model Monitoring
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
-        echo "📊 Gerando relatório semanal de monitoramento..."
-        databricks bundle run model_monitoring --target dev --wait
+        databricks bundle run model_monitoring --target prod

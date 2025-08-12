@@ -2,11 +2,17 @@ resources:
   jobs:
     silver_job:
       name: iris_silver_transform
+      tags:
+        layer: "silver"
+        project: "iris_pipeline"
+        trigger_order: "2"
       tasks:
         - task_key: transform_silver
-          description: "Limpa e transforma os dados da camada Bronze para Silver"
+          description: "Transformação de dados na camada Silver do Unity Catalog"
           notebook_task:
-            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/02_transform_silver
+            notebook_path: ${workspace.file_path}/notebooks/02_transform_silver
             base_parameters:
-              input_bronze_table: ${var.output_bronze_table}
-              output_silver_table: ${var.output_silver_table}
+              input_table: ${var.catalog_name}.${var.schema_name}.iris_bronze
+              output_table: ${var.catalog_name}.${var.schema_name}.iris_silver
+          timeout_seconds: 900
+          max_retries: 2

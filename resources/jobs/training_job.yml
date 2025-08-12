@@ -2,11 +2,19 @@ resources:
   jobs:
     training_job:
       name: iris_model_training
+      tags:
+        layer: "ml"
+        project: "iris_pipeline"
+        trigger_order: "3b"
+        triggered_by: "silver_job"
       tasks:
         - task_key: train_model
-          description: "Treina o modelo com MLflow e registra no UC"
+          description: "Treinamento de modelo ML com registro no MLflow"
           notebook_task:
-            notebook_path: /Workspace/Users/xultezz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/04_train_model
+            notebook_path: ${workspace.file_path}/notebooks/04_train_model
             base_parameters:
-              input_gold_table: ${var.output_silver_table}  # Use Silver data for ML training
-              output_model: ${var.output_model}
+              input_table: ${var.catalog_name}.${var.schema_name}.iris_silver
+              model_name: iris_classifier
+              stage: "Production"
+          timeout_seconds: 1800
+          max_retries: 2

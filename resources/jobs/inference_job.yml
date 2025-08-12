@@ -1,0 +1,28 @@
+resources:
+  jobs:
+    inference_job:
+      name: iris_model_inference
+      tags:
+        layer: "inference"
+        project: "iris_pipeline"
+        trigger_order: "4"
+        triggered_by: "training_job"
+      tasks:
+        - task_key: model_inference
+          description: "Inferência do modelo com visualizações"
+          notebook_task:
+            notebook_path: ${workspace.file_path}/notebooks/05_model_inference
+            base_parameters:
+              model_name: iris_classifier
+              model_stage: "Production"
+              num_samples: "100"
+          timeout_seconds: 1800
+          max_retries: 2
+      
+      email_notifications:
+        on_start: 
+          - ${var.notification_email}
+        on_success: 
+          - ${var.notification_email}
+        on_failure: 
+          - ${var.notification_email}

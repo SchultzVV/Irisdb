@@ -10,7 +10,7 @@ df_spark = spark.createDataFrame(df)
 
 # Save as managed table in Unity Catalog (avoids DBFS issues)
 # This will work in UC-enabled workspaces
-output_table = "default.iris_bronze"
+output_table = "workspace.default.iris_bronze"
 
 try:
     # Try to save as managed table
@@ -61,6 +61,59 @@ try:
     print("✅ Todos os valores numéricos são positivos")
     
     print("🎉 BRONZE: Todas as validações passaram!")
+    
+    # 🚀 AUTO-TRIGGER: Executar próximo job (Silver)
+    print("\n🚀 Executando auto-trigger para o job Silver...")
+    
+    try:
+        import subprocess
+        import os
+        import time
+        
+        # Para Databricks, usar Databricks CLI via subprocess
+        print("🔧 Executando Silver job via Databricks CLI...")
+        
+        # Listar jobs para encontrar o Silver job ID
+        list_result = subprocess.run(
+            ["databricks", "jobs", "list", "--output", "json"], 
+            capture_output=True, 
+            text=True
+        )
+        
+        if list_result.returncode == 0:
+            import json
+            jobs_data = json.loads(list_result.stdout)
+            
+            # Encontrar job Silver
+            silver_job_id = None
+            for job in jobs_data.get("jobs", []):
+                if "iris_silver_transform" in job.get("settings", {}).get("name", ""):
+                    silver_job_id = job.get("job_id")
+                    break
+            
+            if silver_job_id:
+                print(f"� Job Silver encontrado: ID {silver_job_id}")
+                
+                # Executar job Silver
+                run_result = subprocess.run(
+                    ["databricks", "jobs", "run-now", str(silver_job_id)], 
+                    capture_output=True, 
+                    text=True
+                )
+                
+                if run_result.returncode == 0:
+                    print("✅ Auto-trigger Silver iniciado com sucesso!")
+                    print(f"� Job Silver executando: {run_result.stdout}")
+                else:
+                    print(f"⚠️ Erro ao executar Silver: {run_result.stderr}")
+            else:
+                print("⚠️ Job Silver não encontrado")
+        else:
+            print(f"⚠️ Erro ao listar jobs: {list_result.stderr}")
+            
+    except Exception as trigger_error:
+        print(f"⚠️ Auto-trigger falhou, mas Bronze foi bem-sucedido: {trigger_error}")
+        print("📝 Job Silver deve ser executado manualmente ou via make run_silver_with_triggers")
     
 except Exception as e:
     print(f"❌ Error saving to table: {e}")

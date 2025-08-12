@@ -76,12 +76,6 @@ run_monitoring:
 	@set -a && . ./.env && set +a && \
 	databricks bundle run model_monitoring
 
-# 🔮 Inference job (nova funcionalidade)
-run_inference:
-	@echo "🔮 Executando Inference job..."
-	@set -a && . ./.env && set +a && \
-	databricks bundle run inference_job
-
 # 🚀 Pipeline completo orquestrado
 run_complete_pipeline:
 	@echo "🚀 Executando pipeline completo..."
@@ -89,39 +83,7 @@ run_complete_pipeline:
 	databricks bundle run complete_pipeline
 
 # =====================================
-# � CI/CD Automation Commands
-# =====================================
-
-# 🤖 CI/CD: Deploy e executar pipeline completo
-ci_deploy_and_run:
-	@echo "🤖 CI/CD: Deploy e execução completa do pipeline..."
-	@$(MAKE) validate
-	@$(MAKE) deploy
-	@$(MAKE) run_complete_pipeline
-	@$(MAKE) run_monitoring
-	@echo "✅ CI/CD: Pipeline completo executado com sucesso!"
-
-# 🧪 CI/CD: Execução de testes e validação
-ci_test_and_validate:
-	@echo "🧪 CI/CD: Executando testes e validação..."
-	@$(MAKE) validate
-	@echo "✅ CI/CD: Validação concluída!"
-
-# 📊 CI/CD: Verificação de status das tabelas
-ci_check_status:
-	@echo "📊 CI/CD: Verificando status das tabelas..."
-	@set -a && . ./.env && set +a && \
-	databricks jobs list --output json | jq '.jobs[] | select(.settings.name | contains("iris_")) | {name: .settings.name, job_id: .job_id}' || echo "Jobs listados"
-
-# 🔄 CI/CD: Pipeline semanal automatizado
-ci_weekly_pipeline:
-	@echo "🔄 CI/CD: Executando pipeline semanal..."
-	@$(MAKE) run_complete_pipeline
-	@$(MAKE) run_monitoring
-	@echo "✅ CI/CD: Pipeline semanal concluído!"
-
-# =====================================
-# �🔄 Auto-Triggered Pipelines
+# 🔄 Auto-Triggered Pipelines
 # =====================================
 
 # Bronze com auto-triggers (recomendado)
@@ -140,8 +102,7 @@ run_silver_with_triggers:
 # Training com auto-triggers
 run_training_with_triggers:
 	@echo "🌟 Iniciando Training com auto-triggers..."
-	@$(MAKE) run_training && echo "✅ Training concluído, triggering Inference e Monitoring..." && \
-	($(MAKE) run_inference &) && \
+	@$(MAKE) run_training && echo "✅ Training concluído, triggering Monitoring..." && \
 	$(MAKE) run_monitoring
 
 # Pipeline completo com triggers
@@ -188,47 +149,6 @@ clean:
 
 help:
 	@echo "🌸 Iris MLOps Pipeline - Comandos Disponíveis"
-	@echo "=============================================="
-	@echo ""
-	@echo "🔧 Setup e Autenticação:"
-	@echo "  make install-databricks    -> Instala Databricks CLI"
-	@echo "  make test-auth             -> Testa autenticação"
-	@echo ""
-	@echo "📦 Deploy e Validação:"
-	@echo "  make validate              -> Valida bundle"
-	@echo "  make deploy                -> Faz deploy do bundle"
-	@echo ""
-	@echo "🎯 Jobs Essenciais:"
-	@echo "  make run_bronze            -> Executa Bronze job"
-	@echo "  make run_silver            -> Executa Silver job"
-	@echo "  make run_gold              -> Executa Gold job"
-	@echo "  make run_training          -> Executa Training job"
-	@echo "  make run_monitoring        -> Executa Monitoring job"
-	@echo "  make run_complete_pipeline -> Executa pipeline completo"
-	@echo ""
-	@echo "🔄 Auto-Triggered Pipelines:"
-	@echo "  make run_bronze_with_triggers -> Bronze → Silver → [Gold + Training] → Monitoring"
-	@echo "  make run_all_essential       -> Todos os jobs em sequência"
-	@echo ""
-	@echo "🤖 CI/CD Commands:"
-	@echo "  make ci_deploy_and_run      -> Deploy e execução completa (CI/CD)"
-	@echo "  make ci_test_and_validate   -> Testes e validação (CI/CD)"
-	@echo "  make ci_check_status        -> Verificar status (CI/CD)"
-	@echo "  make ci_weekly_pipeline     -> Pipeline semanal (CI/CD)"
-	@echo ""
-	@echo "🔍 Monitoramento:"
-	@echo "  make list_jobs             -> Lista jobs deployados"
-	@echo "  make check_essential_status -> Status dos jobs essenciais"
-	@echo "  make check_tables          -> Verifica tabelas Unity Catalog"
-	@echo ""
-	@echo "🧹 Utilitários:"
-	@echo "  make clean                 -> Limpa arquivos temporários"
-	@echo "  make help                  -> Esta ajuda"
-	@echo ""
-	@echo "🌟 Uso Recomendado:"
-	@echo "  make run_bronze_with_triggers  # Inicia pipeline completo com auto-triggers"
-	@echo "  make ci_deploy_and_run         # Para automação CI/CD"
-	@echo "🌸 Iris MLOps Pipeline - Comandos Disponíveis"
 	@echo ""
 	@echo "🔧 Setup:"
 	@echo "  make install-databricks    -> Instalar Databricks CLI"
@@ -243,7 +163,6 @@ help:
 	@echo "  make run_silver           -> Job Silver (transformação)"
 	@echo "  make run_gold            -> Job Gold (agregação)"
 	@echo "  make run_training        -> Job Training (ML)"
-	@echo "  make run_inference       -> Job Inference (predições + gráficos)"
 	@echo "  make run_monitoring      -> Job Monitoring"
 	@echo "  make run_complete_pipeline -> Pipeline orquestrado"
 	@echo ""
@@ -259,4 +178,4 @@ help:
 	@echo "🌟 Comando Recomendado:"
 	@echo "  make run_bronze_with_triggers  # Executa todo o pipeline automaticamente"
 
-.PHONY: help install-databricks test-auth validate deploy run_bronze run_silver run_gold run_training run_inference run_monitoring run_complete_pipeline run_bronze_with_triggers run_silver_with_triggers run_training_with_triggers run_full_pipeline_triggered list_jobs check_essential_status check_tables clean
+.PHONY: help install-databricks test-auth validate deploy run_bronze run_silver run_gold run_training run_monitoring run_complete_pipeline run_bronze_with_triggers run_silver_with_triggers run_training_with_triggers run_full_pipeline_triggered list_jobs check_essential_status check_tables clean

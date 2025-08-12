@@ -8,8 +8,8 @@ try:
     input_bronze_table = dbutils.widgets.get("input_bronze_table")
     output_silver_table = dbutils.widgets.get("output_silver_table")
 except:
-    input_bronze_table = "default.iris_bronze"
-    output_silver_table = "default.iris_silver"
+    input_bronze_table = "workspace.default.iris_bronze"
+    output_silver_table = "workspace.default.iris_silver"
 
 # Load data from Bronze table (not DBFS path)
 df = spark.table(input_bronze_table)
