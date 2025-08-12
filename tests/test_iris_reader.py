@@ -1,5 +1,11 @@
 import pandas as pd
-from tests.mock_db import create_mock_iris_db
+import sys
+import os
+
+# Adicionar o diretório atual ao path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from mock_db import create_mock_iris_db
 
 def test_iris_table_exists():
     conn = create_mock_iris_db()
