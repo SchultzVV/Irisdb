@@ -106,6 +106,15 @@ jobs:
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
         echo "🔐 Configurando autenticação do Databricks..."
+        
+        # Limpar possíveis caracteres de controle do token
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        
+        # Configurar usando variáveis limpas
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
+        
         databricks configure --token
         echo "✅ Autenticação configurada!"
       env:
@@ -145,19 +154,35 @@ jobs:
       run: |
         curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
         
-    - name: � Configure Databricks Authentication
+    - name: 🔐 Configure Databricks Authentication
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
         echo "🔐 Configurando autenticação do Databricks..."
+        
+        # Limpar possíveis caracteres de controle do token
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        
+        # Configurar usando variáveis limpas
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
+        
         databricks configure --token
         echo "✅ Autenticação configurada!"
       env:
         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         
-    - name: �🚀 Deploy Bundle to Dev
+    - name: 🚀 Deploy Bundle to Dev
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
+        
+        # Usar variáveis limpas para evitar caracteres de controle
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
+        
         databricks bundle deploy --target dev
       env:
         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
@@ -166,6 +191,13 @@ jobs:
     - name: 📋 List Deployed Jobs
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
+        
+        # Usar variáveis limpas para evitar caracteres de controle
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
+        
         echo "📋 Jobs deployados:"
         databricks jobs list --output json | jq '.jobs[] | select(.settings.name | contains("iris_")) | {name: .settings.name, job_id: .job_id}' || echo "Jobs listados"
         
@@ -173,6 +205,13 @@ jobs:
       if: github.event.inputs.run_pipeline != 'false'
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
+        
+        # Usar variáveis limpas para evitar caracteres de controle
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
+        
         echo "🚀 Executando pipeline completo..."
         databricks bundle run complete_pipeline --target dev --wait || echo "⚠️ Pipeline execution completed"
         
@@ -222,6 +261,15 @@ jobs:
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
         echo "🔐 Configurando autenticação do Databricks..."
+        
+        # Limpar possíveis caracteres de controle do token
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        
+        # Configurar usando variáveis limpas
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
+        
         databricks configure --token
         echo "✅ Autenticação configurada para produção!"
       env:
@@ -231,6 +279,13 @@ jobs:
     - name: 🎯 Deploy and Run Production Pipeline via Make
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
+        
+        # Usar variáveis limpas para evitar caracteres de controle
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
+        
         echo "🎯 Executando deploy e pipeline completo via make..."
         make ci_deploy_and_run TARGET=prod
       env:
