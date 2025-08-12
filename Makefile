@@ -8,6 +8,7 @@ export
 # 🛠️ Configuração
 # =====================================
 DATABRICKS_BIN := databricks
+TARGET ?= dev
 
 # =====================================
 # 🔧 Setup e Autenticação
@@ -38,9 +39,9 @@ validate:
 
 # 🚀 Deploy do bundle
 deploy:
-	@echo "🚀 Fazendo deploy..."
+	@echo "🚀 Fazendo deploy para target $(TARGET)..."
 	@set -a && . ./.env && set +a && \
-	$(DATABRICKS_BIN) bundle deploy --target dev
+	$(DATABRICKS_BIN) bundle deploy --target $(TARGET)
 
 # =====================================
 # 🎯 Jobs Essenciais
@@ -48,33 +49,39 @@ deploy:
 
 # 🥉 Bronze job (Ingestão)
 run_bronze:
-	@echo "🥉 Executando Bronze job..."
+	@echo "🥉 Executando Bronze job no target $(TARGET)..."
 	@set -a && . ./.env && set +a && \
-	databricks bundle run bronze_job
+	databricks bundle run bronze_job --target $(TARGET)
 
 # 🥈 Silver job (Transformação)
 run_silver:
-	@echo "🥈 Executando Silver job..."
+	@echo "🥈 Executando Silver job no target $(TARGET)..."
 	@set -a && . ./.env && set +a && \
-	databricks bundle run silver_job
+	databricks bundle run silver_job --target $(TARGET)
 
 # 🥇 Gold job (Agregação)
 run_gold:
-	@echo "🥇 Executando Gold job..."
+	@echo "🥇 Executando Gold job no target $(TARGET)..."
 	@set -a && . ./.env && set +a && \
-	databricks bundle run gold_job
+	databricks bundle run gold_job --target $(TARGET)
 
 # 🤖 Training job (ML)
 run_training:
-	@echo "🤖 Executando Training job..."
+	@echo "🤖 Executando Training job no target $(TARGET)..."
 	@set -a && . ./.env && set +a && \
-	databricks bundle run training_job
+	databricks bundle run training_job --target $(TARGET)
 
 # 🔮 Inference job
 run_inference:
-	@echo "🔮 Executando Inference job..."
+	@echo "🔮 Executando Inference job no target $(TARGET)..."
 	@set -a && . ./.env && set +a && \
-	databricks bundle run inference_job
+	databricks bundle run inference_job --target $(TARGET)
+
+# 🧪 Test runner job
+run_tests:
+	@echo "🧪 Executando testes no target $(TARGET)..."
+	@set -a && . ./.env && set +a && \
+	databricks bundle run test_runner_job --target $(TARGET)
 
 # =====================================
 # 🚀 Pipeline Workflows
@@ -82,19 +89,20 @@ run_inference:
 
 # 🔄 Pipeline sequencial básico
 run_pipeline:
-	@echo "🚀 Executando pipeline sequencial..."
-	@$(MAKE) run_bronze
-	@$(MAKE) run_silver
-	@$(MAKE) run_gold
-	@$(MAKE) run_training
-	@$(MAKE) run_inference
+	@echo "🚀 Executando pipeline sequencial no target $(TARGET)..."
+	@$(MAKE) run_bronze TARGET=$(TARGET)
+	@$(MAKE) run_silver TARGET=$(TARGET)
+	@$(MAKE) run_gold TARGET=$(TARGET)
+	@$(MAKE) run_training TARGET=$(TARGET)
+	@$(MAKE) run_inference TARGET=$(TARGET)
 
 # 🤖 CI/CD: Deploy e executar pipeline
 ci_deploy_and_run:
-	@echo "🤖 CI/CD: Deploy e execução do pipeline..."
-	@$(MAKE) validate
-	@$(MAKE) deploy
-	@$(MAKE) run_pipeline
+	@echo "🤖 CI/CD: Deploy, testes e execução do pipeline..."
+	@$(MAKE) validate TARGET=$(TARGET)
+	@$(MAKE) deploy TARGET=$(TARGET)
+	@$(MAKE) run_tests TARGET=$(TARGET)
+	@$(MAKE) run_pipeline TARGET=$(TARGET)
 
 # =====================================
 # 🧹 Utilitários
@@ -113,10 +121,12 @@ list-jobs:
 # 📊 Status do projeto
 status:
 	@echo "📊 Status do Projeto Iris MLOps:"
-	@echo "  📁 Notebooks: 5 essenciais"
-	@echo "  ⚙️ Jobs: 5 principais"
+	@echo "  📁 Notebooks: 6 arquivos (5 pipeline + 1 teste)"
+	@echo "  ⚙️ Jobs: 6 configurados (5 pipeline + 1 teste)"
 	@echo "  🔧 Pipeline: Bronze → Silver → Gold → Training → Inference"
+	@echo "  🧪 Testes: Notebook automatizado para validação"
 	@echo "  🖥️ Compute: Serverless (configuração de cluster comentada)"
+	@echo "  🚀 CI/CD: Deploy automático no push para main"
 	@echo "  ✅ Status: Pronto para produção"
 
 # 🆘 Ajuda
@@ -137,14 +147,20 @@ help:
 	@echo "  make run_gold           - Executar agregação"
 	@echo "  make run_training       - Executar treinamento ML"
 	@echo "  make run_inference      - Executar inferência ML"
+	@echo "  make run_tests          - Executar testes"
 	@echo ""
 	@echo "🚀 Pipelines:"
 	@echo "  make run_pipeline       - Pipeline completo"
 	@echo "  make ci_deploy_and_run  - CI/CD completo"
+	@echo ""
+	@echo "💡 Exemplos com TARGET:"
+	@echo "  make deploy TARGET=prod          - Deploy para produção"
+	@echo "  make run_pipeline TARGET=dev     - Pipeline em dev (padrão)"
+	@echo "  make ci_deploy_and_run TARGET=prod - CI/CD completo para prod"
 	@echo ""
 	@echo "🧹 Utilitários:"
 	@echo "  make list-jobs          - Listar jobs"
 	@echo "  make status             - Status do projeto"
 	@echo "  make help               - Esta ajuda"
 
-.PHONY: install-databricks test-auth validate deploy run_bronze run_silver run_gold run_training run_inference run_pipeline ci_deploy_and_run list-jobs status help
+.PHONY: install-databricks test-auth validate deploy run_bronze run_silver run_gold run_training run_inference run_tests run_pipeline ci_deploy_and_run list-jobs status help

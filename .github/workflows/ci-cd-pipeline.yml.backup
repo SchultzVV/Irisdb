@@ -238,3 +238,68 @@ jobs:
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
   # 🔄 Pipeline Semanal Automatizado
+  weekly-pipeline:
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Install Databricks CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        
+    - name: 🎯 Deploy Bundle to Production
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        echo "🎯 Fazendo deploy completo para produção via make..."
+        make ci_deploy_and_run TARGET=prod
+        
+    - name: ✅ Production Deployment Complete
+      run: |
+        echo "✅ Deploy em produção concluído com sucesso!"
+        echo "🎯 Pipeline MLOps executado completamente"
+        echo "🧪 Testes executados com sucesso"
+        echo "� Sistema pronto para produção"
+        
+    - name: 📊 Execute Model Monitoring
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        echo "📊 Executando monitoramento do modelo em produção..."
+        databricks bundle run model_monitoring --target dev --wait
+        
+    - name: ✅ Production Deployment Complete
+      run: |
+        echo "✅ Deploy em produção concluído com sucesso!"
+        echo "🎯 Pipeline MLOps executado completamente"
+        echo "📊 Monitoramento ativo"
+
+  # 🔄 Pipeline Semanal Automatizado
+  weekly-pipeline:
+    runs-on: ubuntu-latest
+    name: 🔄 Weekly Automated Pipeline
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Install Databricks CLI
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        
+    - name: � Configure Databricks Authentication
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        databricks configure --token
+      env:
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        
+    - name: � Execute Weekly Pipeline
+      run: |
+        export PATH="$HOME/.databricks/bin:$PATH"
+        echo "� Executando pipeline semanal automatizado..."
+        make ci_deploy_and_run TARGET=dev
+      env:
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
