@@ -139,6 +139,11 @@ jobs:
     - name: ✅ Validate Bundle Configuration
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
+        # Limpar possíveis caracteres de controle do token e host
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
         databricks bundle validate --target dev
       env:
         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
