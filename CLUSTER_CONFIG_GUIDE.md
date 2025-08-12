@@ -1,6 +1,13 @@
 # 🖥️ Guia de Configuração de Clusters
 
-## 📋 Situação Atual
+## 📋 Estratégia de Configuração
+
+### 🔑 Abordagem Recomendada
+- **✅ Configurações de cluster no `databricks.yml`** por target (dev/prod)
+- **✅ Credenciais no `.env`** (host, token, username)
+- **❌ Sem cluster IDs no `.env`** - clusters são recursos do workspace
+
+### 📊 Situação Atual
 - **Status**: Usando **Serverless Computing** (padrão Databricks)
 - **Vantagens**: Sem gerenciamento de cluster, start rápido, escalabilidade automática
 - **Custos**: Pay-per-use, ideal para workloads esporádicos

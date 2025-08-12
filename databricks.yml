@@ -29,10 +29,11 @@ variables:
   teams_webhook:
     description: "Webhook do Microsoft Teams para alertas"
     default: ""
-  # 🖥️ Configurações de Cluster (comentado - atualmente usando Serverless)
+  # 🖥️ Configurações de Cluster (opcional - atualmente usando Serverless)
+  # Para usar clusters específicos, descomente as variáveis abaixo:
   # cluster_id:
   #   description: "ID do cluster específico para execução dos jobs"
-  #   default: "0123-456789-abcdef"  # Substitua pelo ID do seu cluster
+  #   default: "${var.cluster_id}"  # Ou hardcode o ID do cluster
   # cluster_name:
   #   description: "Nome do cluster para identificação"
   #   default: "iris-processing-cluster"

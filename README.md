@@ -2,62 +2,53 @@
 
 ## 📋 Visão Geral
 
-Pipeline de Machine Learning para classificação do dataset Iris usando **Unity Catalog** como camada de governança de dados e **MLflow** para gerenciamento de modelos. Sistema com **auto-triggers** que executa jobs em cascata automaticamente.
+Pipeline de Machine Learning para classificação do dataset Iris usando **Unity Catalog** como camada de governança de dados e **MLflow** para gerenciamento de modelos. Sistema simplificado e pronto para produção com **Serverless Computing**.
+
+## ⭐ **IMPORTANTE: Configuração de Clusters**
+
+📖 **Consulte o arquivo [`CLUSTER_CONFIG_GUIDE.md`](CLUSTER_CONFIG_GUIDE.md)** para informações detalhadas sobre:
+- Como configurar clusters específicos vs Serverless
+- Otimizações de performance e custos  
+- Configurações para desenvolvimento vs produção
+- **Este é o ponto mais importante para customização do projeto!**
 
 ## 🏗️ Arquitetura Unity Catalog
 
 ```
 📊 Dataset Iris (UCI/sklearn)
        ↓
-🥉 hive_metastore.default.iris_bronze (Raw data)
+🥉 workspace.default.iris_bronze (Raw data)
        ↓
-🥈 hive_metastore.default.iris_silver (Cleaned data)
+🥈 workspace.default.iris_silver (Cleaned data)
        ↓     ↓
 🥇 iris_gold ← 🤖 MLflow Model Registry
        ↓           ↓
-📋 Analytics ← 📊 Model Monitoring → 🔔 Teams Alerts
+📋 Analytics ← 📊 Model Inference → 🔔 Alerts
 ```
 
-## 🔄 Pipeline com Auto-Triggers
+## 🔄 Pipeline Simplificado
 
-### Ordem de Execução Automática
+### Jobs Essenciais (5 notebooks)
 
-| Ordem | Job | Descrição | Unity Catalog Table | Auto-Trigger |
-|-------|-----|-----------|-------------------|---------------|
-| 1️⃣ | **Bronze** | Ingestão dataset Iris | `iris_bronze` | Manual |
-| 2️⃣ | **Silver** | Limpeza e transformação | `iris_silver` | ✅ Bronze success |
-| 3️⃣a | **Gold** | Agregações para analytics | `iris_gold` | ✅ Silver success |
-| 3️⃣b | **Training** | ML model + MLflow registry | MLflow Model | ✅ Silver success |
-| 4️⃣ | **Monitoring** | Model drift + Teams alerts | - | ✅ Training success |
+| Ordem | Job | Descrição | Unity Catalog Table | Compute |
+|-------|-----|-----------|-------------------|---------|
+| 1️⃣ | **Bronze** | Ingestão dataset Iris | `workspace.default.iris_bronze` | Serverless |
+| 2️⃣ | **Silver** | Limpeza e transformação | `workspace.default.iris_silver` | Serverless |
+| 3️⃣ | **Gold** | Agregações para analytics | `workspace.default.iris_gold` | Serverless |
+| 4️⃣ | **Training** | ML model + MLflow registry | MLflow Model | Serverless |
+| 5️⃣ | **Inference** | Model predictions + visualizations | `workspace.default.iris_inference_*` | Serverless |
 
-### Fluxo Visual
+### Fluxo Sequencial
 ```
-🥉 Bronze (manual)
-     ↓ ✅ auto-trigger
-🥈 Silver  
-     ↓ ✅ auto-trigger
-   ┌─────────┐
-   ↓ parallel ↓
-🥇 Gold    🤖 Training
-             ↓ ✅ auto-trigger
-           📊 Monitoring
+🥉 Bronze → 🥈 Silver → 🥇 Gold → 🤖 Training → � Inference
 ```
 
 ## 🚀 Comandos Principais
 
-### Pipeline Completa (Recomendado)
+### Pipeline Completa
 ```bash
-# Executa toda a pipeline automaticamente
-make run_bronze_with_triggers
-```
-
-### Pipelines Parciais
-```bash
-# A partir do Silver
-make run_silver_with_triggers
-
-# Apenas Training + Monitoring  
-make run_training_with_triggers
+# Executa toda a pipeline sequencialmente
+make run_pipeline
 ```
 
 ### Jobs Individuais
@@ -66,27 +57,29 @@ make run_bronze     # Ingestão
 make run_silver     # Transformação
 make run_gold       # Agregação  
 make run_training   # ML Training
-make run_monitoring # Monitoramento
+make run_inference  # Model Inference + Visualizations
 ```
 
 ### Deploy e Validação
 ```bash
 make validate       # Validar configuração
 make deploy         # Deploy para Databricks
-make help_essential # Ver todos os comandos
+make status         # Status do projeto
+make help           # Ver todos os comandos
 ```
 
 ## 📊 Unity Catalog - Governança de Dados
 
 ### Catálogo e Schema
-- **Catalog**: `hive_metastore`
+- **Catalog**: `workspace`
 - **Schema**: `default`
 - **Managed Tables**: Todas as tabelas são gerenciadas pelo Unity Catalog
+- **Compute**: Serverless (configuração de cluster disponível no [`CLUSTER_CONFIG_GUIDE.md`](CLUSTER_CONFIG_GUIDE.md))
 
 ### Tabelas Criadas
 ```sql
 -- Bronze Layer (Raw data)
-hive_metastore.default.iris_bronze
+workspace.default.iris_bronze
   ├── sepal_length: double
   ├── sepal_width: double  
   ├── petal_length: double
@@ -97,7 +90,7 @@ hive_metastore.default.iris_bronze
   └── batch_id: string
 
 -- Silver Layer (Cleaned data)  
-hive_metastore.default.iris_silver
+workspace.default.iris_silver
   ├── sepal_length: double
   ├── sepal_width: double
   ├── petal_length: double  
@@ -107,7 +100,7 @@ hive_metastore.default.iris_silver
   └── quality_score: double
 
 -- Gold Layer (Aggregated data)
-hive_metastore.default.iris_gold
+workspace.default.iris_gold
   ├── species: string
   ├── avg_sepal_length: double
   ├── avg_sepal_width: double
@@ -115,43 +108,56 @@ hive_metastore.default.iris_gold
   ├── avg_petal_width: double
   ├── sample_count: long
   └── aggregation_timestamp: timestamp
+
+-- Inference Results (Multiple tables with timestamps)
+workspace.default.iris_inference_results_*
+  ├── sepal_length_cm: double
+  ├── sepal_width_cm: double
+  ├── petal_length_cm: double  
+  ├── petal_width_cm: double
+  ├── predicted_class: string
+  ├── confidence: double
+  ├── inference_timestamp: timestamp
+  ├── model_name: string
+  └── model_version: string
 ```
 
 ## 🤖 MLflow Integration
 
 ### Model Registry
 - **Model Name**: `iris_classifier`
-- **Stage**: `Production`
+- **Stage**: `Production` (ou fallback para modelo de referência)
 - **Algorithm**: RandomForestClassifier
-- **Input Example**: ✅ Auto-signature inference
-- **Metrics**: Accuracy, Precision, Recall, F1-Score
+- **Features**: Simplified approach com fallback para quando MLflow não está configurado
+- **Metrics**: Accuracy, Classification Report, Feature Importance
 
-### Features
-- ✅ Automatic model registration
-- ✅ Production stage promotion
+### Features Implementadas
+- ✅ Model training com RandomForestClassifier
+- ✅ Fallback quando MLflow registry não disponível
 - ✅ Feature importance tracking
-- ✅ Model versioning
 - ✅ Performance monitoring
+- ✅ Inference com visualizações completas
 
 ## 📁 Estrutura do Projeto
 
 ```
-├── resources/jobs/              # Job definitions
+├── 📖 CLUSTER_CONFIG_GUIDE.md   # ⭐ CONFIGURAÇÃO DE CLUSTERS (IMPORTANTE!)
+├── resources/jobs/              # Job definitions (5 jobs essenciais)
 │   ├── bronze_job.yml          # 🥉 Ingestão Unity Catalog
 │   ├── silver_job.yml          # 🥈 Transformação  
 │   ├── gold_job.yml            # 🥇 Agregação
 │   ├── training_job.yml        # 🤖 ML Training + MLflow
-│   ├── complete_pipeline.yml   # 🚀 Pipeline orquestrado
-│   └── model_monitoring.yml    # 📊 Monitoring + Teams
-├── notebooks/                   # Implementation notebooks
+│   └── inference_job.yml       # 🔮 Model Inference + Visualizations
+├── notebooks/                   # Implementation notebooks (5 essenciais)
 │   ├── 01_ingest_bronze.py     # Download Iris + Unity Catalog
 │   ├── 02_transform_silver.py  # Data cleaning
 │   ├── 03_aggregate_gold.py    # Analytics aggregations
 │   ├── 04_train_model.py       # ML training + MLflow
-│   └── model_monitoring.py     # Drift detection + alerts
-├── databricks.yml              # Bundle configuration
+│   └── 05_model_inference.py   # Model inference + comprehensive visualizations
+├── databricks.yml              # Bundle configuration + cluster settings
 ├── Makefile                    # Automation commands
-└── deploy.sh                   # Automated deployment
+└── .github/workflows/          # CI/CD pipeline
+    └── ci-cd-pipeline.yml      # GitHub Actions automation
 ```
 
 ## ⚙️ Configuração
@@ -161,11 +167,11 @@ hive_metastore.default.iris_gold
 DATABRICKS_HOST=https://your-workspace.databricks.com
 DATABRICKS_TOKEN=your-token
 
-# Unity Catalog settings
-catalog_name=hive_metastore
+# Unity Catalog settings (atuais)
+catalog_name=workspace
 schema_name=default
 
-# Notifications
+# Notifications (opcional)
 notification_email=your-email@company.com
 teams_webhook=https://your-teams-webhook
 ```
@@ -180,50 +186,60 @@ cp .env.example .env
 make validate && make deploy
 
 # 3. Execute pipeline
-make run_bronze_with_triggers
+make run_pipeline
 ```
+
+### ⚡ Configuração Avançada de Clusters
+Para configurar clusters específicos ao invés de Serverless, consulte:
+👉 **[`CLUSTER_CONFIG_GUIDE.md`](CLUSTER_CONFIG_GUIDE.md)** - Guia completo com exemplos
 
 ## 🔍 Monitoramento
 
 ### Verificar Status
 ```bash
-make check_essential_status  # Status dos jobs
-make check_tables           # Tabelas Unity Catalog  
-make check_models          # Modelos MLflow
+make status         # Status geral do projeto
+make list-jobs      # Lista todos os jobs disponíveis  
+make help          # Ver todos os comandos
 ```
 
-### Teams Alerts
-O sistema envia alertas automáticos para Microsoft Teams quando:
-- 🚨 Model accuracy < threshold
-- ❌ Data quality issues
-- 📭 Empty tables
-- ⚠️ Pipeline failures
+### Recursos Implementados
+- ✅ **Inference Job** com visualizações completas
+- ✅ **Model fallback** quando MLflow não disponível
+- ✅ **Unity Catalog** para todas as tabelas
+- ✅ **Serverless Computing** (configurável para clusters específicos)
+- ✅ **CI/CD Pipeline** com GitHub Actions
 
 ## 🎯 Benefícios
 
 ### ✅ Unity Catalog
 - **Governança centralizada** de todos os dados
 - **Tabelas gerenciadas** com versionamento automático
-- **Controle de acesso** granular
+- **Catalog `workspace`** com schema `default`
 - **Lineage tracking** completo
 
-### ✅ Auto-Triggers
-- **Execução automática** em cascata
-- **Paralelismo** entre Gold e Training
-- **Error handling** robusto
-- **Um comando** executa tudo
+### ✅ Serverless Computing
+- **Sem gerenciamento** de clusters
+- **Start rápido** dos jobs
+- **Escalabilidade automática**
+- **Pay-per-use** eficiente
 
 ### ✅ MLflow Integration
-- **Model registry** nativo
-- **Automatic signature** inference
-- **Version control** de modelos
-- **Performance tracking** contínuo
+- **Model registry** com fallback robusto
+- **Inference completa** com visualizações
+- **Performance tracking** detalhado
+- **Feature importance** analysis
+
+### ✅ Configuração Flexível
+- **Serverless por padrão** (sem overhead)
+- **Clusters específicos** configuráveis via [`CLUSTER_CONFIG_GUIDE.md`](CLUSTER_CONFIG_GUIDE.md)
+- **CI/CD automatizado** com GitHub Actions
+- **5 jobs essenciais** bem estruturados
 
 ### ✅ Produção Ready
 - **Databricks Asset Bundles** para deploy
 - **Unity Catalog** para governança
-- **Teams integration** para alertas
 - **Comprehensive logging** e monitoramento
+- **Pipeline limpo** e documentado
 
 ---
 
@@ -234,10 +250,16 @@ O sistema envia alertas automáticos para Microsoft Teams quando:
 make deploy
 
 # 2. Execute pipeline completa
-make run_bronze_with_triggers
+make run_pipeline
 
 # 3. Monitorar
-make check_essential_status
+make status
 ```
 
-**Pipeline MLOps completa com Unity Catalog e auto-triggers em um comando!** 🌟
+## 📖 Documentação Importante
+
+- 🔧 **[`CLUSTER_CONFIG_GUIDE.md`](CLUSTER_CONFIG_GUIDE.md)** - Configuração de clusters (essencial!)
+- 📋 **[`databricks.yml`](databricks.yml)** - Configuração do bundle
+- ⚙️ **[`Makefile`](Makefile)** - Comandos de automação
+
+**Pipeline MLOps simplificada e pronta para produção!** 🌟

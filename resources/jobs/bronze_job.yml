@@ -1,22 +1,3 @@
-# resources:
-#   jobs:
-#     bronze_job:
-#       name: iris_bronze_ingestion
-#       tags:
-#         layer: "bronze"
-#         project: "iris_pipeline"
-#         trigger_order: "1"
-#       tasks:
-#         - task_key: ingest_bronze
-#           description: "Ingestão de dados na camada Bronze do Unity Catalog"
-#           notebook_task:
-#             notebook_path: /Workspace/Users/vitorvazschultz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/01_ingest_bronze
-#             base_parameters:
-#               source: ${var.source}
-#               output_table: ${var.catalog_name}.${var.schema_name}.iris_bronze
-#           timeout_seconds: 900
-#           max_retries: 2
-
 resources:
   jobs:
     bronze_job:
