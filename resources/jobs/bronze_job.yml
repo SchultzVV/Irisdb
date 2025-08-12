@@ -21,11 +21,38 @@ resources:
   jobs:
     bronze_job:
       name: iris_bronze_ingestion
+      # 🖥️ CONFIGURAÇÃO DE CLUSTER (comentado - atualmente usando Serverless)
+      # 
+      # Opção 1: Usar cluster existente por ID
+      # existing_cluster_id: ${var.cluster_id}
+      #
+      # Opção 2: Criar cluster job-específico
+      # new_cluster:
+      #   cluster_name: "bronze-job-cluster"
+      #   spark_version: "13.3.x-scala2.12"
+      #   node_type_id: "i3.xlarge"
+      #   driver_node_type_id: "i3.xlarge"
+      #   num_workers: 2
+      #   autotermination_minutes: 30
+      #   spark_conf:
+      #     "spark.databricks.adaptive.enabled": "true"
+      #     "spark.databricks.adaptive.coalescePartitions.enabled": "true"
+      #   custom_tags:
+      #     Job: "bronze_ingestion"
+      #     Environment: "dev"
+      #
+      # Opção 3: Usar cluster pool (mais eficiente para múltiplos jobs)
+      # new_cluster:
+      #   cluster_name: "bronze-job-from-pool"
+      #   instance_pool_id: "pool-id-here"
+      #   spark_version: "13.3.x-scala2.12"
+      #   num_workers: 2
+      #   autotermination_minutes: 30
+      
       tasks:
         - task_key: ingest_bronze
           description: "Ingesta os dados brutos no Delta Lake (camada Bronze) usando Unity Catalog"
           notebook_task:
-            # notebook_path: ${workspace.file_path}/notebooks/01_ingest_bronze
             notebook_path: /Workspace/Users/vitorvazschultz@gmail.com/.bundle/iris_bundle/dev/files/notebooks/01_ingest_bronze
             base_parameters:
               source: ${var.source}
@@ -34,3 +61,5 @@ resources:
               schema_name: ${var.schema_name}
           timeout_seconds: 3600
           max_retries: 1
+          # 🖥️ Task-level cluster override (se necessário diferente do job-level)
+          # existing_cluster_id: "task-specific-cluster-id"

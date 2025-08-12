@@ -29,11 +29,17 @@ variables:
   teams_webhook:
     description: "Webhook do Microsoft Teams para alertas"
     default: ""
+  # 🖥️ Configurações de Cluster (comentado - atualmente usando Serverless)
+  # cluster_id:
+  #   description: "ID do cluster específico para execução dos jobs"
+  #   default: "0123-456789-abcdef"  # Substitua pelo ID do seu cluster
+  # cluster_name:
+  #   description: "Nome do cluster para identificação"
+  #   default: "iris-processing-cluster"
 
 sync:
   include:
     - notebooks/*
-    - feature_store/*
     - requirements.txt
     - tests/*
 
@@ -47,6 +53,9 @@ targets:
     variables:
       catalog_name: "workspace"
       schema_name: "default"
+      # 🖥️ Cluster Config para DEV (comentado - usando Serverless)
+      # cluster_id: "dev-cluster-id-here"
+      # cluster_name: "iris-dev-cluster"
   
   prod:
     mode: production
@@ -57,3 +66,45 @@ targets:
       output_silver_table: "main.iris_pipeline.iris_silver"
       output_gold_table: "main.iris_pipeline.iris_gold"
       output_model: "main.iris_pipeline.iris_model"
+      # 🖥️ Cluster Config para PROD (comentado - usando Serverless)
+      # cluster_id: "prod-cluster-id-here"
+      # cluster_name: "iris-prod-cluster"
+
+# 🖥️ CONFIGURAÇÕES DE CLUSTER (comentado - atualmente usando Serverless)
+# 
+# Para usar clusters específicos ao invés de Serverless, descomente as seções abaixo:
+#
+# resources:
+#   clusters:
+#     # Cluster para desenvolvimento
+#     iris_dev_cluster:
+#       cluster_name: "iris-dev-cluster"
+#       spark_version: "13.3.x-scala2.12"
+#       node_type_id: "i3.xlarge"
+#       driver_node_type_id: "i3.xlarge"
+#       num_workers: 2
+#       autotermination_minutes: 30
+#       spark_conf:
+#         "spark.databricks.adaptive.enabled": "true"
+#         "spark.databricks.adaptive.coalescePartitions.enabled": "true"
+#       custom_tags:
+#         Environment: "dev"
+#         Project: "iris_pipeline"
+#         Team: "data_engineering"
+#     
+#     # Cluster para produção
+#     iris_prod_cluster:
+#       cluster_name: "iris-prod-cluster"
+#       spark_version: "13.3.x-scala2.12"
+#       node_type_id: "i3.2xlarge"
+#       driver_node_type_id: "i3.2xlarge"
+#       num_workers: 4
+#       autotermination_minutes: 60
+#       spark_conf:
+#         "spark.databricks.adaptive.enabled": "true"
+#         "spark.databricks.adaptive.coalescePartitions.enabled": "true"
+#         "spark.databricks.adaptive.localShuffleReader.enabled": "true"
+#       custom_tags:
+#         Environment: "prod"
+#         Project: "iris_pipeline"
+#         Team: "data_engineering"

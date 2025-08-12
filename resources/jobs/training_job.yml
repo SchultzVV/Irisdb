@@ -2,6 +2,31 @@ resources:
   jobs:
     training_job:
       name: iris_model_training
+      
+      # 🖥️ EXEMPLO: Cluster otimizado para ML (comentado)
+      # Para jobs de ML, recomenda-se clusters com mais memória
+      # new_cluster:
+      #   cluster_name: "iris-ml-training-cluster"
+      #   spark_version: "13.3.x-cpu-ml-scala2.12"  # Versão ML-optimized
+      #   node_type_id: "i3.2xlarge"  # Mais CPU/RAM para ML
+      #   driver_node_type_id: "i3.2xlarge"
+      #   num_workers: 2
+      #   autotermination_minutes: 60
+      #   spark_conf:
+      #     "spark.databricks.adaptive.enabled": "true"
+      #     "spark.databricks.adaptive.coalescePartitions.enabled": "true"
+      #     # Configurações específicas para ML
+      #     "spark.sql.execution.arrow.pyspark.enabled": "true"
+      #     "spark.serializer": "org.apache.spark.serializer.KryoSerializer"
+      #   init_scripts:
+      #     # Script para instalar bibliotecas ML customizadas
+      #     - file:
+      #         destination: "/databricks/scripts/install-ml-libs.sh"
+      #   custom_tags:
+      #     Job: "ml_training"
+      #     WorkloadType: "cpu_intensive"
+      #     Environment: "dev"
+      
       tags:
         layer: "ml"
         project: "iris_pipeline"
