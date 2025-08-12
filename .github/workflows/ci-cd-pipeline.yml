@@ -124,6 +124,11 @@ jobs:
     - name: 🔍 Test Databricks Connection
       run: |
         export PATH="$HOME/.databricks/bin:$PATH"
+        # Limpar possíveis caracteres de controle do token e host
+        CLEAN_HOST=$(echo "$DATABRICKS_HOST" | tr -d '\n\r' | xargs)
+        CLEAN_TOKEN=$(echo "$DATABRICKS_TOKEN" | tr -d '\n\r' | xargs)
+        export DATABRICKS_HOST="$CLEAN_HOST"
+        export DATABRICKS_TOKEN="$CLEAN_TOKEN"
         echo "🔍 Testando conexão com Databricks..."
         databricks current-user me
         echo "✅ Conexão estabelecida com sucesso!"
