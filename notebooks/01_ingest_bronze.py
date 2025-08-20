@@ -1,6 +1,22 @@
 # Databricks notebook source
 import seaborn as sns
 import pandas as pd
+import sys
+import os
+from pyspark.sql import SparkSession
+
+# Initialize Spark session
+spark = SparkSession.builder.appName("iris_bronze_ingestion").getOrCreate()
+
+# Add utils to path for monitoring
+sys.path.append("/Workspace/Shared/iris_monitoring")
+try:
+    from utils.monitoring import monitor_pipeline, get_pipeline_monitor
+    monitor = get_pipeline_monitor(spark)
+    monitor.log_pipeline_start("bronze_ingestion")
+except ImportError:
+    print("⚠️ Monitoring module not available, continuing without monitoring")
+    monitor = None
 
 # Load Iris dataset via seaborn
 df = sns.load_dataset("iris")
@@ -62,6 +78,18 @@ try:
     
     print("🎉 BRONZE: Todas as validações passaram!")
     
+    # Log success with monitoring
+    if monitor:
+        quality_checks = {
+            "record_count": count,
+            "null_checks_passed": True,
+            "schema_valid": True,
+            "species_count": 3,
+            "positive_values": True
+        }
+        monitor.log_data_quality_check("iris_bronze", True, quality_checks)
+        monitor.log_pipeline_success("bronze_ingestion", {"record_count": count})
+    
     # 🚀 AUTO-TRIGGER: Executar próximo job (Silver)
     print("\n🚀 Executando auto-trigger para o job Silver...")
     
@@ -116,5 +144,11 @@ try:
         print("📝 Job Silver deve ser executado manualmente ou via make run_silver_with_triggers")
     
 except Exception as e:
-    print(f"❌ Error saving to table: {e}")
+    error_msg = f"Error saving to table: {e}"
+    print(f"❌ {error_msg}")
+    
+    # Log error with monitoring
+    if monitor:
+        monitor.log_pipeline_error("bronze_ingestion", error_msg)
+    
     raise e  # Re-raise the exception to fail the job

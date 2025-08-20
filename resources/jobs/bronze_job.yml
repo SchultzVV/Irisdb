@@ -7,7 +7,7 @@ resources:
       # Opção 1: Usar cluster existente por ID
       # existing_cluster_id: ${var.cluster_id}
       #
-      # Opção 2: Criar cluster job-específico
+      # Opção 2: Criar cluster job-específico com monitoramento
       # new_cluster:
       #   cluster_name: "bronze-job-cluster"
       #   spark_version: "13.3.x-scala2.12"
@@ -18,9 +18,16 @@ resources:
       #   spark_conf:
       #     "spark.databricks.adaptive.enabled": "true"
       #     "spark.databricks.adaptive.coalescePartitions.enabled": "true"
+      #     # ElasticSearch monitoring configuration
+      #     "spark.iris.elasticsearch.host": "${var.elasticsearch_host}"
+      #     "spark.iris.elasticsearch.port": "${var.elasticsearch_port}"
+      #     "spark.iris.teams.webhook": "${var.teams_webhook}"
+      #     "spark.driver.extraJavaOptions": "-Dlog4j.configuration=file:${var.log4j_path}"
+      #     "spark.executor.extraJavaOptions": "-Dlog4j.configuration=file:${var.log4j_path}"
       #   custom_tags:
       #     Job: "bronze_ingestion"
-      #     Environment: "dev"
+      #     Environment: "${bundle.target}"
+      #     monitoring: "enabled"
       #
       # Opção 3: Usar cluster pool (mais eficiente para múltiplos jobs)
       # new_cluster:
@@ -44,3 +51,23 @@ resources:
           max_retries: 1
           # 🖥️ Task-level cluster override (se necessário diferente do job-level)
           # existing_cluster_id: "task-specific-cluster-id"
+      
+      # 📧 Notificações aprimoradas
+      email_notifications:
+        on_failure:
+          - "vitorvazschultz@gmail.com"
+      
+      # 🔔 Teams webhooks (comentado até configuração)
+      # webhook_notifications:
+      #   on_failure:
+      #     - id: "teams_webhook"
+      #       url: "${var.teams_webhook}"
+      #   on_success:
+      #     - id: "teams_success"
+      #       url: "${var.teams_webhook}"
+      
+      tags:
+        environment: "${bundle.target}"
+        cost_center: "ml_ops"
+        monitoring: "enabled"
+        pipeline_stage: "bronze"

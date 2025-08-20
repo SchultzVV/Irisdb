@@ -1,0 +1,110 @@
+{
+  "version": "8.8.0",
+  "objects": [
+    {
+      "id": "iris-pipeline-overview",
+      "type": "dashboard",
+      "attributes": {
+        "title": "Iris MLOps Pipeline Monitoring",
+        "description": "Comprehensive monitoring dashboard for the Iris ML pipeline",
+        "panelsJSON": "[{\"version\":\"8.8.0\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15,\"i\":\"pipeline-status\"},\"panelIndex\":\"pipeline-status\",\"embeddableConfig\":{},\"panelRefName\":\"panel_pipeline-status\"},{\"version\":\"8.8.0\",\"gridData\":{\"x\":24,\"y\":0,\"w\":24,\"h\":15,\"i\":\"data-quality\"},\"panelIndex\":\"data-quality\",\"embeddableConfig\":{},\"panelRefName\":\"panel_data-quality\"},{\"version\":\"8.8.0\",\"gridData\":{\"x\":0,\"y\":15,\"w\":48,\"h\":15,\"i\":\"execution-timeline\"},\"panelIndex\":\"execution-timeline\",\"embeddableConfig\":{},\"panelRefName\":\"panel_execution-timeline\"},{\"version\":\"8.8.0\",\"gridData\":{\"x\":0,\"y\":30,\"w\":24,\"h\":15,\"i\":\"model-metrics\"},\"panelIndex\":\"model-metrics\",\"embeddableConfig\":{},\"panelRefName\":\"panel_model-metrics\"},{\"version\":\"8.8.0\",\"gridData\":{\"x\":24,\"y\":30,\"w\":24,\"h\":15,\"i\":\"error-logs\"},\"panelIndex\":\"error-logs\",\"embeddableConfig\":{},\"panelRefName\":\"panel_error-logs\"}]",
+        "timeRestore": false,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+        }
+      },
+      "references": [
+        {
+          "id": "pipeline-status-viz",
+          "type": "visualization",
+          "name": "panel_pipeline-status"
+        },
+        {
+          "id": "data-quality-viz",
+          "type": "visualization", 
+          "name": "panel_data-quality"
+        },
+        {
+          "id": "execution-timeline-viz",
+          "type": "visualization",
+          "name": "panel_execution-timeline"
+        },
+        {
+          "id": "model-metrics-viz",
+          "type": "visualization",
+          "name": "panel_model-metrics"
+        },
+        {
+          "id": "error-logs-viz",
+          "type": "visualization",
+          "name": "panel_error-logs"
+        }
+      ]
+    },
+    {
+      "id": "pipeline-status-viz",
+      "type": "visualization",
+      "attributes": {
+        "title": "Pipeline Status Overview",
+        "visState": "{\"title\":\"Pipeline Status Overview\",\"type\":\"metric\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"pipeline_status.keyword\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "Current status of all pipeline executions",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"iris-pipeline-logs\",\"query\":{\"match\":{\"logger\":\"iris.monitoring\"}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "data-quality-viz", 
+      "type": "visualization",
+      "attributes": {
+        "title": "Data Quality Checks",
+        "visState": "{\"title\":\"Data Quality Checks\",\"type\":\"histogram\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"min_doc_count\":1}},{\"id\":\"3\",\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"table_name.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "Data quality validation results over time",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"iris-pipeline-logs\",\"query\":{\"match\":{\"message\":\"Data quality check\"}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "execution-timeline-viz",
+      "type": "visualization", 
+      "attributes": {
+        "title": "Pipeline Execution Timeline",
+        "visState": "{\"title\":\"Pipeline Execution Timeline\",\"type\":\"line\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"min_doc_count\":1}},{\"id\":\"3\",\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"pipeline_name.keyword\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "Timeline view of pipeline executions",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"iris-pipeline-logs\",\"query\":{\"bool\":{\"should\":[{\"match\":{\"message\":\"started\"}},{\"match\":{\"message\":\"completed\"}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "model-metrics-viz",
+      "type": "visualization",
+      "attributes": {
+        "title": "Model Performance Metrics",
+        "visState": "{\"title\":\"Model Performance Metrics\",\"type\":\"line\",\"aggs\":[{\"id\":\"1\",\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"metric_value\"}},{\"id\":\"2\",\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"min_doc_count\":1}},{\"id\":\"3\",\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"metric_name.keyword\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "ML model performance metrics over time",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"iris-pipeline-logs\",\"query\":{\"match\":{\"logger\":\"iris.metrics\"}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "error-logs-viz",
+      "type": "visualization",
+      "attributes": {
+        "title": "Error Logs and Alerts",
+        "visState": "{\"title\":\"Error Logs and Alerts\",\"type\":\"data_table\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"pipeline_name.keyword\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\"}},{\"id\":\"3\",\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"level.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "Recent errors and alerts from pipeline executions",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"iris-pipeline-logs\",\"query\":{\"bool\":{\"should\":[{\"match\":{\"level\":\"ERROR\"}},{\"match\":{\"level\":\"WARN\"}}]}},\"filter\":[]}"
+        }
+      }
+    }
+  ]
+}

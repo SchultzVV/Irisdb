@@ -2,7 +2,7 @@
 
 ## 📋 Visão Geral
 
-Pipeline de Machine Learning para classificação do dataset Iris usando **Unity Catalog** como camada de governança de dados e **MLflow** para gerenciamento de modelos. Sistema simplificado e pronto para produção com **Serverless Computing**.
+Pipeline de Machine Learning para classificação do dataset Iris usando **Unity Catalog** como camada de governança de dados e **MLflow** para gerenciamento de modelos. Sistema simplificado e pronto para produção com **Serverless Computing** e **monitoramento ElasticSearch integrado**.
 
 ## ⭐ **IMPORTANTE: Configuração de Clusters**
 
@@ -67,6 +67,44 @@ make deploy         # Deploy para Databricks
 make status         # Status do projeto
 make help           # Ver todos os comandos
 ```
+
+## 📊 Monitoramento e Observabilidade
+
+### ElasticSearch + Kibana Dashboard
+- **Logs centralizados**: Todos os pipelines enviam logs para ElasticSearch
+- **Dashboard Kibana**: Visualizações em tempo real de execuções, erros e métricas
+- **Alertas Teams**: Notificações automáticas para falhas e sucessos
+- **Métricas ML**: Tracking de performance dos modelos
+
+### Configuração do Monitoramento
+```bash
+# 1. Configure as variáveis de ambiente
+export ELASTICSEARCH_HOST="your-elasticsearch-host"
+export ELASTICSEARCH_PORT="9200"
+export TEAMS_WEBHOOK_URL="your-teams-webhook-url"
+
+# 2. Deploy da infraestrutura de monitoramento
+./scripts/deploy_monitoring.sh
+
+# 3. Atualize o bundle com configurações de monitoramento
+databricks bundle deploy --target dev
+```
+
+### Dashboard Kibana
+- **URL**: `http://your-kibana-host:5601/app/dashboards#/view/iris-pipeline-overview`
+- **Índice**: `iris-pipeline-logs`
+- **Visualizações**:
+  - Status dos pipelines em tempo real
+  - Timeline de execuções
+  - Checks de qualidade de dados
+  - Métricas de performance dos modelos
+  - Logs de erro e alertas
+
+### Teams Notifications
+- **Início de pipeline**: Notificação azul com parâmetros
+- **Sucesso**: Notificação verde com métricas
+- **Falha**: Notificação vermelha com detalhes do erro
+- **Data Quality**: Alertas quando validações falham
 
 ## 📊 Unity Catalog - Governança de Dados
 

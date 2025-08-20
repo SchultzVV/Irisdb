@@ -2,6 +2,14 @@ bundle:
   name: iris_bundle
 
 variables:
+  environment:
+    description: "Environment name (dev/prod)"
+    default: "dev"
+  
+  current_user:
+    description: "Current user for permissions"
+    default: "${workspace.current_user.userName}"
+    
   source:
     description: "Fonte de dados do dataset Iris (via seaborn)"
     default: "seaborn://iris"
@@ -28,7 +36,23 @@ variables:
     default: "admin@company.com"
   teams_webhook:
     description: "Webhook do Microsoft Teams para alertas"
-    default: ""
+    default: "https://your-teams-webhook-url.com"
+  
+  elasticsearch_host:
+    description: "Host do ElasticSearch para logs"
+    default: "localhost"
+  
+  elasticsearch_port:
+    description: "Porta do ElasticSearch"
+    default: "9200"
+  
+  log4j_path:
+    description: "Caminho para arquivo log4j.properties no Workspace"
+    default: "/Workspace/Shared/iris_monitoring/log4j.properties"
+  
+  enable_monitoring:
+    description: "Habilitar monitoramento avançado"
+    default: "true"
   # 🖥️ Configurações de Cluster (opcional - atualmente usando Serverless)
   # Para usar clusters específicos, descomente as variáveis abaixo:
   # cluster_id:
@@ -52,6 +76,7 @@ targets:
     mode: development
     default: true
     variables:
+      environment: "dev"
       catalog_name: "workspace"
       schema_name: "default"
       # 🖥️ Cluster Config para DEV (comentado - usando Serverless)
@@ -61,6 +86,7 @@ targets:
   prod:
     mode: production
     variables:
+      environment: "prod"
       catalog_name: "main"
       schema_name: "iris_pipeline"
       output_bronze_table: "main.iris_pipeline.iris_bronze"
