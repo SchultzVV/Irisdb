@@ -301,3 +301,6 @@ make status
 - ⚙️ **[`Makefile`](Makefile)** - Comandos de automação
 
 **Pipeline MLOps simplificada e pronta para produção!** 🌟
+
+
+![alt text](image.png)
